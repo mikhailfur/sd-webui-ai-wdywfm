@@ -20,16 +20,18 @@ Roadmap построен по принципу: сначала безопасн�
 
 ## v0.1.0 — Forge Neo skeleton
 
+Статус: **готово**
+
 Цель: расширение безопасно загружается и показывает UI в обеих вкладках.
 
-- [ ] Создать package structure, `install.py`, dependency policy.
-- [ ] Добавить Neo compatibility guard.
-- [ ] Реализовать `scripts.Script` + `scripts.AlwaysVisible`.
-- [ ] Захватить prompt/negative components через `on_after_component`.
-- [ ] Создать одинаковый accordion в txt2img и img2img.
-- [ ] Реализовать preview и `Apply prompts`.
-- [ ] Добавить regression test: меняются ровно два поля.
-- [ ] Добавить Settings section и redacted logging.
+- [x] Создать package structure, `install.py`, dependency policy.
+- [x] Добавить Neo compatibility guard.
+- [x] Реализовать `scripts.Script` + `scripts.AlwaysVisible`.
+- [x] Захватить prompt/negative components через `on_after_component`.
+- [x] Создать одинаковый accordion в txt2img и img2img.
+- [x] Реализовать preview и `Apply prompts`.
+- [x] Добавить regression test: меняются ровно два поля.
+- [x] Добавить Settings section; content logging выключен по умолчанию.
 
 Exit criteria:
 

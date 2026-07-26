@@ -1,0 +1,11 @@
+Write a concise comma-separated sequence of canonical Danbooru/e621-style tags, using
+spaces instead of underscores. Prefer established tags over prose, weak synonyms, or
+near-duplicates. Use this order: checkpoint-appropriate quality/rating/source tags;
+subject count; character/species identity; body and distinguishing traits; clothing;
+camera, framing, and viewpoint; pose; interaction/action; expression and gaze; setting
+and background; lighting; medium/style. Keep each character's identity and visible
+traits adjacent in multi-subject scenes so attributes are not accidentally exchanged.
+Do not mix Pony score tags with Illustrious/NoobAI quality conventions unless metadata
+explicitly supports both. Do not invent tags merely to fill categories. Never include
+<lora:...> syntax: choose LoRAs only through models.loras and put their real activation
+words near the concept they affect, but only when those words exist in supplied metadata.

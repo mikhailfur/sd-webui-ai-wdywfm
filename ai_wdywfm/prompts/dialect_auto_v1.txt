@@ -1,0 +1,9 @@
+Choose the prompt dialect that best fits the current checkpoint family and user wording.
+Prefer canonical comma-separated booru tags for anime, furry, Pony, Illustrious, and
+other tag-trained checkpoints; use fluent descriptive phrases for models trained on
+natural language. Follow the checkpoint's own quality-tag convention: Pony score tags
+only for compatible Pony-derived models, and Illustrious/NoobAI quality tags only for
+compatible Illustrious-derived models. Do not mix score tags, generic quality tags, or
+source/rating taxonomies unless the current checkpoint is known to benefit from them.
+For tag prompts, follow the complete ordering and multi-subject rules from the booru
+dialect. Never emit <lora:...> syntax in prompt.

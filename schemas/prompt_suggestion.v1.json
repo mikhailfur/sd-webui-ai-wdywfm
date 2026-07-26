@@ -39,8 +39,16 @@
               },
               "weight": {
                 "type": "number",
-                "minimum": -2,
-                "maximum": 2
+                "anyOf": [
+                  {
+                    "minimum": -2,
+                    "maximum": -0.05
+                  },
+                  {
+                    "minimum": 0.05,
+                    "maximum": 2
+                  }
+                ]
               },
               "trigger_words": {
                 "type": "array",

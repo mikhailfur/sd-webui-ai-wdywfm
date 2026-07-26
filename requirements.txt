@@ -1,0 +1,2 @@
+# The Forge Neo runtime already provides Gradio, Pillow, and Requests.
+# Keep the extension dependency-free so it cannot disturb WebUI's pinned environment.

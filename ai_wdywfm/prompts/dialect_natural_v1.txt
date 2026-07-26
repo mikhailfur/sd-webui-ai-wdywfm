@@ -1,0 +1,3 @@
+Write a compact natural-language image prompt. Establish subject and action first, then
+composition, environment, lighting, materials, lens or medium, and finish. Avoid filler,
+keyword spam, and mutually conflicting details.

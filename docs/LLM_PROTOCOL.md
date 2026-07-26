@@ -98,8 +98,10 @@ Text content должен идти перед image content для совмес�
               },
               "weight": {
                 "type": "number",
-                "minimum": -2,
-                "maximum": 2
+                "anyOf": [
+                  {"minimum": -2, "maximum": -0.05},
+                  {"minimum": 0.05, "maximum": 2}
+                ]
               },
               "trigger_words": {
                 "type": "array",
@@ -201,6 +203,7 @@ Text content должен идти перед image content для совмес�
 - Диалект зависит от запроса: booru tags либо natural-language prompt.
 - LoRA syntax допускается только для `models.loras`.
 - Trigger words выбранных LoRA должны быть включены, если они действительно нужны.
+- `trigger_words` выбираются только из локальных `activation_words` карточки LoRA; backend проверяет их и добавляет пропущенные выбранные слова перед проверенными LoRA tags. Если compact context не содержал полную карточку, backend использует первое локальное activation word как детерминированный fallback.
 - LLM не должна добавлять неизвестные embedding/LoRA/hypernetwork references.
 
 ### `negative_prompt`
@@ -214,9 +217,9 @@ Text content должен идти перед image content для совмес�
 - `checkpoint_id` — stable id из allowlist, не свободное display name.
 - `null` означает «оставить текущий checkpoint».
 - LoRA `id` также берётся только из allowlist.
-- `weight` — рекомендация; фактический `<lora:alias:weight>` строит backend, а не LLM.
+- `weight` — JSON number, не строка и не `null`; осмысленная ненулевая рекомендация с абсолютным значением `0.05–2`. Backend безопасно нормализует числовую строку, а `null`, ноль или любую нечисловую строку (например `"default"`) заменяет локальным `preferred_weight` либо `0.7`; фактический `<lora:alias:weight>` строит backend, а не LLM.
 
-Backend может пересобрать LoRA tags в prompt из валидированных ids, чтобы исключить hallucinated filename.
+Backend всегда удаляет переданные LLM LoRA tags и пересобирает их из валидированных ids и весов, чтобы исключить hallucinated filename, дубли и подмену веса.
 
 ### `recommendations`
 
@@ -314,7 +317,7 @@ http://127.0.0.1:1234/v1
 - автоматическая вставка отсутствующих prompt полей;
 - применение частично распарсенного ответа.
 
-Опциональный repair request разрешён один раз и получает только validation errors и исходный JSON. Если он снова невалиден, UI показывает ошибку и raw content только в раскрываемом debug preview с redaction.
+Опциональный repair request протоколом допускается, но в текущей реализации отключён: одно действие Generate выполняет ровно один completion. Невалидный ответ отклоняется локально без второго платного запроса.
 
 ## 9. Пример валидного ответа
 

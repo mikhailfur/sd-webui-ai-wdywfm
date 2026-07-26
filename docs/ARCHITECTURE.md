@@ -370,6 +370,13 @@ OpenRouter adapter добавляет:
 - capability filtering;
 - `provider.require_parameters=true`, когда требуется strict schema support.
 
+Исключение Gemma 4: fast structured path не запрашивает reasoning, не применяет
+model-specific jailbreak/turn markers, ограничивает output 3072 токенами (запас
+под полную schema: prompt + negative_prompt + models + recommendations +
+summary + warnings — 1024 приводило к `finish_reason=length` и отбраковке
+усечённого JSON локальной validation) и сразу использует compatibility routing
+без автоматического повторного completion.
+
 LM Studio adapter добавляет:
 
 - loopback-safe default URL;

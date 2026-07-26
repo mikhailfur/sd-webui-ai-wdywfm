@@ -12,7 +12,7 @@ Turn a plain-language idea—or an image plus editing instructions—into Stable
 [![Gradio 4.40](https://img.shields.io/badge/Gradio-4.40-f97316?style=for-the-badge)](https://www.gradio.app/)
 [![OpenRouter](https://img.shields.io/badge/LLM-OpenRouter-7c3aed?style=for-the-badge)](https://openrouter.ai/)
 [![LM Studio](https://img.shields.io/badge/LLM-LM_Studio-0f766e?style=for-the-badge)](https://lmstudio.ai/)
-[![Status](https://img.shields.io/badge/status-architecture_&_planning-f59e0b?style=for-the-badge)](ROADMAP.md)
+[![Status](https://img.shields.io/badge/status-v0.1_MVP-22c55e?style=for-the-badge)](ROADMAP.md)
 
 **English** · [Русский](README_RU.md)
 
@@ -21,7 +21,54 @@ Turn a plain-language idea—or an image plus editing instructions—into Stable
 </div>
 
 > [!IMPORTANT]
-> The project is currently at the **architecture and planning stage**. The executable Forge Neo extension has not been implemented yet.
+> The first executable MVP is available. It provides the Forge Neo UI, LM Studio and
+> OpenRouter structured requests, text/vision input, validation, and explicit prompt-only
+> apply. Metadata enrichment and advanced model retrieval remain roadmap work.
+
+> [!NOTE]
+> **Verified status.** Confirmed working end to end on the latest **Stable Diffusion WebUI
+> Forge Neo**. So far only the **OpenRouter** provider has been verified in real use; LM
+> Studio is implemented against the same contract but not yet confirmed end to end.
+>
+> The **recommended and verified model is `google/gemma-4-31b-it` (Gemma 4 31B)**, which
+> also supports NSFW prompt generation. Any other LLM/model choice is **not guaranteed** —
+> schema adherence, prompt quality, and content-policy behavior can differ significantly
+> between models and providers.
+>
+> It is **strongly recommended to review and edit the generated prompt before
+> generating an image** — treat every LLM suggestion as a draft, not a final prompt.
+>
+> If you are new to SDXL prompting, it's worth watching an in-depth guide such as
+> [this video](https://www.youtube.com/watch?v=QdRP9pO89MY) and browsing
+> [CivitAI](https://civitai.com) for model-specific techniques and examples.
+
+## Quick start
+
+1. Put this repository in Forge Neo's `extensions/` directory.
+2. Restart Forge Neo.
+3. Open `LLM Prompt Helper · AI WDYWFM` under `txt2img` or `img2img`.
+4. Keep the local-first default and start LM Studio at `http://127.0.0.1:1234/v1`,
+   or select OpenRouter and provide a session-only key (the
+   `OPENROUTER_API_KEY` environment variable is also supported).
+5. Refresh/select a model, describe the result, and click `Generate verified draft`.
+6. Review the preview and read-only recommendations, then click `Apply prompts`.
+
+Provider choice, URL, model, and OpenRouter key are restored automatically after a
+WebUI reload. On Windows, the saved key is encrypted for the current user with DPAPI.
+Timeout, image size, and context limits are available under `Settings → AI WDYWFM`.
+
+Every provider operation has a request id and is written to the rotating sanitized log
+at `logs/ai-wdywfm.log`. Open `Diagnostics · sanitized log` in the panel to inspect or
+copy recent events. API keys, prompt text, and images are never written to this log.
+
+OpenRouter models in the Gemma 4 family use a fast structured-output profile with no
+jailbreak, custom turn markers, or requested reasoning. Output is capped at 3072 tokens
+and each Generate action performs at most one completion. OpenRouter Response
+Healing is enabled for structured JSON responses.
+
+Forge caches safetensors headers. LoRA sidecar JSON is additionally cached in memory and
+invalidated by file size/mtime; only the eight most request-relevant detailed LoRA cards
+are sent, while the complete compact id allowlist remains available for validation.
 
 ## Overview
 
@@ -99,7 +146,7 @@ Prompt + Negative Prompt only
 
 The extension owns its image input, so this workflow is available in both `txt2img` and `img2img` and does not depend on a particular img2img sub-mode.
 
-## Planned interface
+## Interface
 
 The `AI WDYWFM` panel is an `AlwaysVisible` Forge script rendered independently in both generation tabs.
 
