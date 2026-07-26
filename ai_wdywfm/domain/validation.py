@@ -131,8 +131,8 @@ def parse_suggestion(payload: Any) -> PromptSuggestion:
         raise ValidationError("warnings must be an array with at most 20 items.")
     return PromptSuggestion(
         schema_version="1.0",
-        prompt=_string(root["prompt"], "prompt", 12000, 1),
-        negative_prompt=_string(root["negative_prompt"], "negative_prompt", 6000),
+        prompt=_string(root["prompt"], "prompt", 1900, 1),
+        negative_prompt=_string(root["negative_prompt"], "negative_prompt", 1900),
         checkpoint_id=checkpoint,
         loras=tuple(loras),
         recommendations=recommendations,

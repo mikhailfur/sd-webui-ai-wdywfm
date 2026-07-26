@@ -34,9 +34,16 @@ def register_settings() -> None:
         ),
         "wdywfm_timeout": shared.OptionInfo(
             60,
-            "LLM request timeout (seconds)",
+            "OpenRouter request timeout (seconds)",
             gr.Slider,
             {"minimum": 10, "maximum": 300, "step": 5},
+            section=SECTION,
+        ),
+        "wdywfm_timeout_lmstudio": shared.OptionInfo(
+            180,
+            "LM Studio request timeout (seconds, local generation is usually slower)",
+            gr.Slider,
+            {"minimum": 10, "maximum": 900, "step": 5},
             section=SECTION,
         ),
         "wdywfm_image_max_side": shared.OptionInfo(

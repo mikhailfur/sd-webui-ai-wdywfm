@@ -73,11 +73,11 @@ Text content должен идти перед image content для совмес�
     "prompt": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 12000
+      "maxLength": 1900
     },
     "negative_prompt": {
       "type": "string",
-      "maxLength": 6000
+      "maxLength": 1900
     },
     "models": {
       "type": "object",
@@ -299,6 +299,8 @@ http://127.0.0.1:1234/v1
 ```
 
 `response_format` совпадает с OpenAI Structured Output. Модель может не справляться со schema, особенно небольшая или неподходящая instruct-модель; поэтому локальная проверка обязательна независимо от server-side enforcement.
+
+LM Studio компилирует `json_schema` в GBNF-грамматику локально (llama.cpp). Начиная с llama.cpp PR #17381 парсер грамматики жёстко ограничивает любой `{min,max}` repetition (в том числе `maxLength` строки, компилируемый как `char{0,N}`) значением 2000: превышение даёт HTTP 400 `Failed to initialize samplers: failed to parse grammar` ещё до начала генерации. Поэтому `maxLength` строковых полей схемы должен оставаться < 2000 — иначе запрос ломается независимо от возможностей модели. OpenRouter эту грамматику локально не компилирует, поэтому там лимит не актуален, но схема должна быть одной для обоих провайдеров.
 
 ## 8. Parsing и repair policy
 

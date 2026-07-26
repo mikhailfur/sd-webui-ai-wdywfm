@@ -330,7 +330,8 @@ Read the complete [Architecture document](docs/ARCHITECTURE.md).
 | CivitAI domain | `civitai.com` | `civitai.red` may be explicitly selected. |
 | Detailed model cards | `12` | Maximum full cards per request. |
 | Context budget | `12,000 tokens` | Soft model-context limit. |
-| LLM timeout | `120 seconds` | Provider request timeout. |
+| OpenRouter timeout | `60 seconds` | OpenRouter request timeout. |
+| LM Studio timeout | `180 seconds` | LM Studio request timeout (local generation is usually slower). |
 | Image maximum side | `1,536 px` | Vision input resize limit. |
 | Cloud image input | Off | Additional OpenRouter image consent. |
 | Debug logging | Off | Content and secrets remain excluded. |

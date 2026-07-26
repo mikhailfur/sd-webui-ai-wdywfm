@@ -27,6 +27,12 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1"
 LM_STUDIO_URL = "http://127.0.0.1:1234/v1"
 
 
+def _timeout_for(provider: str) -> float:
+    if provider == "LM Studio":
+        return float(get_setting("wdywfm_timeout_lmstudio", 180))
+    return float(get_setting("wdywfm_timeout", 60))
+
+
 def build_panel(*, is_img2img: bool, prompt_component, negative_component) -> None:
     mode = "img2img" if is_img2img else "txt2img"
     compatible, runtime = compatibility()
@@ -355,7 +361,7 @@ def _generate(
             f"Request `{request_id}` · "
             f"{'Gemma 4 fast profile · ' if is_gemma4_model(model or '') else ''}"
             f"waiting for {provider} "
-            f"(timeout {float(get_setting('wdywfm_timeout', 60)):g}s)…"
+            f"(timeout {_timeout_for(provider):g}s)…"
         )
         suggestion = generate(
             provider=provider,
@@ -371,7 +377,7 @@ def _generate(
             image=reference,
             cloud_image_consent=cloud_consent,
             inventory=inventory,
-            timeout=float(get_setting("wdywfm_timeout", 60)),
+            timeout=_timeout_for(provider),
             image_max_side=int(get_setting("wdywfm_image_max_side", 1536)),
             request_id=request_id,
         )
@@ -437,7 +443,7 @@ def _list_models(provider: str, base_url: str, api_key: str):
             provider=provider,
             base_url=base_url,
             api_key=api_key,
-            timeout=min(float(get_setting("wdywfm_timeout", 60)), 30),
+            timeout=min(_timeout_for(provider), 30),
             request_id=request_id,
         )
         models = client.list_models()
