@@ -1,0 +1,90 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'build_info.json' # Сборка запускается только при изменении этого файла
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Важно для корректной генерации changelog
+
+      - name: Read build info
+        id: get_info
+        run: |
+          VERSION=$(jq -r '.version' build_info.json)
+          TYPE=$(jq -r '.type' build_info.json)
+          DESCRIPTION=$(jq -r '.description' build_info.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "type=$TYPE" >> $GITHUB_OUTPUT
+          echo "description=$DESCRIPTION" >> $GITHUB_OUTPUT
+
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Prepare distribution folder
+        run: |
+          mkdir -p dist
+          # Копируем всё, кроме исключений
+          # Используем rsync для удобной фильтрации (он есть в ubuntu-latest)
+          rsync -av --exclude='.git*' \
+                 --exclude='__pycache__*' \
+                 --exclude='*.py[co]*' \
+                 --exclude='*.pyo' \
+                 --exclude='*.exe' \
+                 --exclude='*. Saginaw' \
+                 --exclude='*.dist-info' \
+                 --exclude='*.egg-info' \
+                 --exclude='docs/' \
+                 --exclude='schemas/' \
+                 --exclude='tests/' \
+                 --exclude='*.md' \
+                 --exclude='README*' \
+                 --exclude='LICENSE' \
+                 --exclude='.env' \
+                 --exclude='.gitignore' \
+                 --exclude='.github/' \
+                 --exclude='build_info.json' \
+                 --exclude='.vscode/' \
+                 --exclude='.idea/' \
+                 --exclude='.swp' \
+                 --exclude='*.pyc' \
+                 . dist/
+
+      - name: Package into ZIP
+        run: |
+          cd dist
+          zip -r ../release_build.zip .
+          cd ..
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          # Берем данные из вашего JSON файла
+          tag_name: v${{ steps.get_info.outputs.version }}
+          name: Release ${{ steps.get_info.outputs.version }} (${{ steps.get_info.outputs.type }})
+          body: |
+            ${{ steps.get_info.outputs.description }}
+
+            ## Changelog
+            ${{ steps.get_info.outputs.changelog }}
+
+          files: release_build.zip
+          # Автоматическая генерация заметок на основе коммитов
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
