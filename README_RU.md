@@ -14,7 +14,7 @@
 [![LM Studio](https://img.shields.io/badge/LLM-LM_Studio-0f766e?style=for-the-badge)](https://lmstudio.ai/)
 [![Status](https://img.shields.io/badge/status-v0.1_MVP-22c55e?style=for-the-badge)](ROADMAP.md)
 
-[English](README.md) · **Русский**
+[English](README.md) · **Русский** · [한국어](README_KO.md) · [日本語](README_JA.md) · [简体中文](README_ZH_CN.md) · [繁體中文](README_ZH_TW.md)
 
 [Обзор](#обзор) · [Как это работает](#как-это-работает) · [Архитектура](#архитектура) · [Roadmap](ROADMAP.md) · [Поддержать проект](#поддержать-проект)
 

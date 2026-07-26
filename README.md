@@ -14,7 +14,7 @@ Turn a plain-language idea—or an image plus editing instructions—into Stable
 [![LM Studio](https://img.shields.io/badge/LLM-LM_Studio-0f766e?style=for-the-badge)](https://lmstudio.ai/)
 [![Status](https://img.shields.io/badge/status-v0.1_MVP-22c55e?style=for-the-badge)](ROADMAP.md)
 
-**English** · [Русский](README_RU.md)
+**English** · [Русский](README_RU.md) · [한국어](README_KO.md) · [日本語](README_JA.md) · [简体中文](README_ZH_CN.md) · [繁體中文](README_ZH_TW.md)
 
 [Overview](#overview) · [How it works](#how-it-works) · [Architecture](#architecture) · [Roadmap](ROADMAP.md) · [Support the project](#support-the-project)
 
