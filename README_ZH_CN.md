@@ -32,12 +32,13 @@
 
 ## 快速开始
 
-1. 将此仓库放入 Forge Neo 的 `extensions/` 目录。
-2. 重启 Forge Neo。
-3. 在 `txt2img` 或 `img2img` 中打开 `LLM Prompt Helper · AI WDYWFM`。
-4. 在 `http://127.0.0.1:1234/v1` 启动 LM Studio，或选择 OpenRouter 并提供仅限会话的密钥（也支持 `OPENROUTER_API_KEY` 环境变量）。
-5. 刷新/选择模型，描述目标，然后点击 `Generate verified draft`。
-6. 检查预览和只读建议，再点击 `Apply prompts`。
+1. 从 [github.com/mikhailfur/sd-webui-ai-wdywfm/releases/latest](https://github.com/mikhailfur/sd-webui-ai-wdywfm/releases/latest) 下载最新版本的 zip 压缩包。
+2. 将压缩包解压到 Forge Neo 的 `extensions/` 目录，使扩展自身的文件夹（例如 `sd-webui-ai-wdywfm`）直接位于 `extensions/` 下，而不是嵌套在更深一层的文件夹中。
+3. 重启 Forge Neo（需要完全关闭并重新启动 WebUI 进程，仅刷新浏览器页面是不够的）。
+4. 在 `txt2img` 或 `img2img` 中打开 `LLM Prompt Helper · AI WDYWFM`。
+5. 在 `http://127.0.0.1:1234/v1` 启动 LM Studio，或选择 OpenRouter 并提供仅限会话的密钥（也支持 `OPENROUTER_API_KEY` 环境变量）。
+6. 刷新/选择模型，描述目标，然后点击 `Generate verified draft`。
+7. 检查预览和只读建议，再点击 `Apply prompts`。
 
 重新加载 WebUI 后会自动恢复提供商、URL、模型和 OpenRouter 密钥。Windows 上保存的密钥使用当前用户的 DPAPI 加密。超时、图片尺寸和上下文限制位于 `Settings → AI WDYWFM`。
 

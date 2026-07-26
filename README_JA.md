@@ -32,12 +32,13 @@
 
 ## クイックスタート
 
-1. このリポジトリを Forge Neo の `extensions/` ディレクトリへ配置します。
-2. Forge Neo を再起動します。
-3. `txt2img` または `img2img` で `LLM Prompt Helper · AI WDYWFM` を開きます。
-4. LM Studio を `http://127.0.0.1:1234/v1` で起動するか、OpenRouter とセッション専用キーを選びます（`OPENROUTER_API_KEY` 環境変数にも対応）。
-5. モデルを更新・選択し、望む結果を説明して `Generate verified draft` を押します。
-6. プレビューと読み取り専用の推奨値を確認し、`Apply prompts` を押します。
+1. [github.com/mikhailfur/sd-webui-ai-wdywfm/releases/latest](https://github.com/mikhailfur/sd-webui-ai-wdywfm/releases/latest) から最新リリースの zip アーカイブをダウンロードします。
+2. アーカイブを Forge Neo の `extensions/` ディレクトリに展開します。拡張機能自体のフォルダー（例：`sd-webui-ai-wdywfm`）が `extensions/` の直下に来るようにしてください（一段深い階層にならないよう注意）。
+3. Forge Neo を再起動します（WebUI のプロセスを完全に終了して再度起動してください。ブラウザタブの再読み込みだけでは不十分です）。
+4. `txt2img` または `img2img` で `LLM Prompt Helper · AI WDYWFM` を開きます。
+5. LM Studio を `http://127.0.0.1:1234/v1` で起動するか、OpenRouter とセッション専用キーを選びます（`OPENROUTER_API_KEY` 環境変数にも対応）。
+6. モデルを更新・選択し、望む結果を説明して `Generate verified draft` を押します。
+7. プレビューと読み取り専用の推奨値を確認し、`Apply prompts` を押します。
 
 WebUI の再読み込み後もプロバイダー、URL、モデル、OpenRouter キーは自動復元されます。Windows では保存キーを現在のユーザー用 DPAPI で暗号化します。タイムアウト、画像サイズ、コンテキスト上限は `Settings → AI WDYWFM` で設定できます。
 

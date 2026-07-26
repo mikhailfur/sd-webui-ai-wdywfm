@@ -44,14 +44,19 @@ Turn a plain-language idea—or an image plus editing instructions—into Stable
 
 ## Quick start
 
-1. Put this repository in Forge Neo's `extensions/` directory.
-2. Restart Forge Neo.
-3. Open `LLM Prompt Helper · AI WDYWFM` under `txt2img` or `img2img`.
-4. Keep the local-first default and start LM Studio at `http://127.0.0.1:1234/v1`,
+1. Download the latest release archive from
+   [github.com/mikhailfur/sd-webui-ai-wdywfm/releases/latest](https://github.com/mikhailfur/sd-webui-ai-wdywfm/releases/latest).
+2. Extract the archive into Forge Neo's `extensions/` directory, so the extension's
+   own folder (e.g. `sd-webui-ai-wdywfm`) ends up directly inside `extensions/`,
+   not nested one level deeper.
+3. Restart Forge Neo (fully close and relaunch the WebUI process — reloading the
+   browser tab alone is not enough).
+4. Open `LLM Prompt Helper · AI WDYWFM` under `txt2img` or `img2img`.
+5. Keep the local-first default and start LM Studio at `http://127.0.0.1:1234/v1`,
    or select OpenRouter and provide a session-only key (the
    `OPENROUTER_API_KEY` environment variable is also supported).
-5. Refresh/select a model, describe the result, and click `Generate verified draft`.
-6. Review the preview and read-only recommendations, then click `Apply prompts`.
+6. Refresh/select a model, describe the result, and click `Generate verified draft`.
+7. Review the preview and read-only recommendations, then click `Apply prompts`.
 
 Provider choice, URL, model, and OpenRouter key are restored automatically after a
 WebUI reload. On Windows, the saved key is encrypted for the current user with DPAPI.
