@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'build_info.json' # Сборка запускается только при изменении этого файла
+      - 'build_info.json'
 
 permissions:
   contents: write
@@ -18,7 +18,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Важно для корректной генерации changelog
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
       - name: Read build info
         id: get_info
@@ -30,23 +35,18 @@ jobs:
           echo "type=$TYPE" >> $GITHUB_OUTPUT
           echo "description=$DESCRIPTION" >> $GITHUB_OUTPUT
 
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
       - name: Prepare distribution folder
         run: |
-          mkdir -p dist
-          # Копируем всё, кроме исключений
-          # Используем rsync для удобной фильтрации (он есть в ubuntu-latest)
+          # Создаем целевую структуру папок
+          mkdir -p dist/sd-webui-ai-wdywfm
+          
+          # Копируем файлы, исключая мусор. 
+          # Файлы из корня проекта попадут в dist/sd-webui-ai-wdywfm/
           rsync -av --exclude='.git*' \
                  --exclude='__pycache__*' \
                  --exclude='*.py[co]*' \
                  --exclude='*.pyo' \
                  --exclude='*.exe' \
-                 --exclude='*. Saginaw' \
                  --exclude='*.dist-info' \
                  --exclude='*.egg-info' \
                  --exclude='docs/' \
@@ -63,28 +63,30 @@ jobs:
                  --exclude='.idea/' \
                  --exclude='.swp' \
                  --exclude='*.pyc' \
-                 . dist/
+                 . dist/sd-webui-ai-wdywfm/
 
       - name: Package into ZIP
         run: |
+          # Формируем имя архива динамически: v0.2-stable.zip
+          ARCHIVE_NAME="v${{ steps.get_info.outputs.version }}-${{ steps.get_info.outputs.type }}.zip"
           cd dist
-          zip -r ../release_build.zip .
+          # Зипуем только папку с проектом
+          zip -r ../$ARCHIVE_NAME sd-webui-ai-wdywfm
           cd ..
+          echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          # Берем данные из вашего JSON файла
+          # Используем динамическое имя из шага выше
           tag_name: v${{ steps.get_info.outputs.version }}
           name: Release ${{ steps.get_info.outputs.version }} (${{ steps.get_info.outputs.type }})
           body: |
             ${{ steps.get_info.outputs.description }}
-
+            
             ## Changelog
             ${{ steps.get_info.outputs.changelog }}
-
-          files: release_build.zip
-          # Автоматическая генерация заметок на основе коммитов
-          generate_release_notes: true
+          
+          files: ${{ env.ARCHIVE_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
