@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'build_info.json' # Сборка запускается только при изменении этого файла
 
