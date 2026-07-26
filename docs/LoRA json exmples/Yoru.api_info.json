@@ -1,0 +1,311 @@
+{
+    "id": 2324610,
+    "modelId": 2054132,
+    "name": "V1",
+    "nsfwLevel": 1,
+    "createdAt": "2025-10-18T07:32:00.257Z",
+    "updatedAt": "2025-10-18T19:18:08.314Z",
+    "status": "Published",
+    "publishedAt": "2025-10-18T19:18:08.267Z",
+    "trainedWords": [],
+    "trainingStatus": "Approved",
+    "trainingDetails": {
+        "type": "Character",
+        "params": {
+            "engine": "kohya",
+            "unetLR": 0.0005,
+            "clipSkip": 1,
+            "loraType": "lora",
+            "keepTokens": 0,
+            "networkDim": 32,
+            "numRepeats": 23,
+            "resolution": 1024,
+            "lrScheduler": "cosine_with_restarts",
+            "minSnrGamma": 5,
+            "noiseOffset": 0.1,
+            "targetSteps": 518,
+            "enableBucket": true,
+            "networkAlpha": 16,
+            "optimizerType": "Adafactor",
+            "textEncoderLR": 5e-05,
+            "maxTrainEpochs": 10,
+            "shuffleCaption": false,
+            "trainBatchSize": 4,
+            "flipAugmentation": false,
+            "lrSchedulerNumCycles": 3
+        },
+        "staging": false,
+        "baseModel": "illustrious",
+        "mediaType": "image",
+        "highPriority": false,
+        "baseModelType": "sdxl",
+        "samplePrompts": [
+            "yoru (chainsaw man), yoru, manga style, black cape, collared shirt, gloves, black pinafore dress, black hair, long hair, scar on face, black ribbon ",
+            "yoru (chainsaw man), yoru, black cape, collared shirt, gloves, black pinafore dress, black hair, long hair, scar on face, black ribbon ",
+            "yoru (chainsaw man), yoru, black cape, collared shirt, gloves, black pinafore dress, black hair, long hair, scar on face, black ribbon, outdoors, gray sky"
+        ],
+        "negativePrompt": "bad quality, low quality, worst quality, jpeg artifacts, blurry, pixelated, out of focus, watermark, text, signature"
+    },
+    "baseModel": "Illustrious",
+    "baseModelType": "Standard",
+    "earlyAccessEndsAt": null,
+    "earlyAccessConfig": null,
+    "description": null,
+    "uploadType": "Trained",
+    "usageControl": "Download",
+    "licensingFee": null,
+    "air": "urn:air:sdxl:lora:civitai:2054132@2324610",
+    "stats": {
+        "downloadCount": 209,
+        "thumbsUpCount": 33
+    },
+    "model": {
+        "name": "Yoru (Chainsaw man) (Unstable)",
+        "type": "LORA",
+        "nsfw": false,
+        "poi": false
+    },
+    "files": [
+        {
+            "id": 2216317,
+            "sizeKB": 223099.66015625,
+            "name": "Yoru.safetensors",
+            "overrideName": null,
+            "type": "Model",
+            "pickleScanResult": "Success",
+            "pickleScanMessage": "No Pickle imports",
+            "virusScanResult": "Success",
+            "virusScanMessage": null,
+            "scannedAt": "2025-10-18T19:21:09.463Z",
+            "metadata": {
+                "format": "SafeTensor"
+            },
+            "hashes": {
+                "AutoV1": "118D4A2F",
+                "AutoV2": "E60CB3DC82",
+                "SHA256": "E60CB3DC82BAD5B5949471CCF74E406B078159925BC6063F4241624B263319CD",
+                "CRC32": "2DAC5034",
+                "BLAKE3": "FAAEA78924BE19A92F2C2FC9191C5B3AD83D63649F7D6E1EDC27E56BBB84FAC8",
+                "AutoV3": "7DA35D03ABDB"
+            },
+            "primary": true,
+            "downloadUrl": "https://civitai.red/api/download/models/2324610"
+        }
+    ],
+    "images": [
+        {
+            "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/0fd29b7e-d821-454c-9c50-a5ba6db98b47/original=true/106613873.jpeg",
+            "nsfwLevel": 1,
+            "width": 832,
+            "height": 1408,
+            "hash": "UeHS1#t7[DRj|KWB#nt6r?wdX8s:s:ofW;NG",
+            "type": "image",
+            "metadata": {
+                "hash": "UeHS1#t7[DRj|KWB#nt6r?wdX8s:s:ofW;NG",
+                "size": 1755239,
+                "width": 832,
+                "height": 1408,
+                "nsfwLevelReason": null
+            },
+            "minor": false,
+            "poi": false,
+            "meta": {
+                "Size": "836x1412",
+                "seed": 3686941889,
+                "Model": "lxlanil_v20",
+                "steps": 30,
+                "hashes": {
+                    "model": "57a290fa77",
+                    "lora:Yoru": "7da35d03abdb"
+                },
+                "prompt": "anime coloring,anime style,beautiful,textural,(((masterpiece))),(((best quality))),((ultra-detailed)), solo, <lora:Yoru:0.7>, yoru (chainsaw man), yoru, black cape, collared shirt, gloves, black pinafore dress, black hair, long hair, scar on face, black ribbon, moshimoshibe style, simple background,",
+                "Version": "f1.0.0v2-v1.10.1RC-latest-2463-g99bb3d5d",
+                "sampler": "Euler a",
+                "cfgScale": 5,
+                "resources": [
+                    {
+                        "hash": "7da35d03abdb",
+                        "name": "Yoru",
+                        "type": "lora",
+                        "weight": 0.7
+                    },
+                    {
+                        "hash": "57a290fa77",
+                        "name": "lxlanil_v20",
+                        "type": "model"
+                    }
+                ],
+                "Model hash": "57a290fa77",
+                "ADetailer VAE": "sdxl_vae.safetensors",
+                "Schedule type": "Automatic",
+                "negativePrompt": "(worst quality:1.4), (low quality:1.4), (monochrome:1.1), (verybadimagenegativev1.3, bad-picture-chill-75v, badartistanime, BadDream, badhands5, boringe621v4, EasyNegative, FastNegativeV2, negativehandneg, ngdeepnegativev175t, UnspeakableHorrors64v), watermarks, signs, elongated, b&w, black&white, sepia,",
+                "ADetailer model": "face_yolov8s.pt",
+                "ADetailer steps": "28",
+                "ADetailer version": "25.3.0",
+                "ADetailer mask blur": "20",
+                "ADetailer confidence": "0.3",
+                "ADetailer dilate erode": "4",
+                "ADetailer inpaint padding": "32",
+                "ADetailer use separate VAE": "True",
+                "ADetailer denoising strength": "0.4",
+                "ADetailer use separate steps": "True",
+                "ADetailer inpaint only masked": "True"
+            },
+            "availability": "Public",
+            "hasMeta": true,
+            "hasPositivePrompt": true,
+            "onSite": false,
+            "remixOfId": null
+        },
+        {
+            "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/3e031cd9-1270-47c8-803e-92d4c12f5b26/original=true/106683770.jpeg",
+            "nsfwLevel": 1,
+            "width": 832,
+            "height": 1408,
+            "hash": "UG8qjatS7$j[~Cf568WU@@ae9[bw:4f5EKba",
+            "type": "image",
+            "metadata": {
+                "hash": "UG8qjatS7$j[~Cf568WU@@ae9[bw:4f5EKba",
+                "size": 2087771,
+                "width": 832,
+                "height": 1408,
+                "nsfwLevelReason": null
+            },
+            "minor": false,
+            "poi": false,
+            "meta": {
+                "Size": "836x1412",
+                "seed": 1019110888,
+                "Model": "lxlanil_v20",
+                "steps": 30,
+                "hashes": {
+                    "model": "57a290fa77",
+                    "lora:Yoru": "7da35d03abdb",
+                    "lora:nhl-001": "00a2e3e7d3b3",
+                    "lora:nhl-004-wai": "2abfc69f8d0c",
+                    "lora:Detailer_NoobAI_Incrs_v1": "9f242f949d7b"
+                },
+                "prompt": "anime coloring,beautiful,textural,(((masterpiece))),(((best quality))),((ultra-detailed)), solo, <lora:Yoru:0.9>, yoru \\(chainsaw man\\), yoru, red eyes, ringed eyes, looking at viewer, black cape, collared shirt, gloves, black pinafore dress, black hair, long hair, scar on face, black ribbon, looking at viewer, particles, fractal, HDR colours, abstract background, limited palette, glitch theme, painterly, impressionism, <lora:Detailer_NoobAI_Incrs_v1:0.6>, detailed,  <lora:nhl-001:0.6>, nhl-001,  <lora:nhl-004-wai:0.4>, nhl-004, (holding sword)",
+                "Version": "f1.0.0v2-v1.10.1RC-latest-2463-g99bb3d5d",
+                "sampler": "Euler a",
+                "cfgScale": 5,
+                "resources": [
+                    {
+                        "hash": "7da35d03abdb",
+                        "name": "Yoru",
+                        "type": "lora",
+                        "weight": 0.9
+                    },
+                    {
+                        "hash": "9f242f949d7b",
+                        "name": "Detailer_NoobAI_Incrs_v1",
+                        "type": "lora",
+                        "weight": 0.6
+                    },
+                    {
+                        "hash": "00a2e3e7d3b3",
+                        "name": "nhl-001",
+                        "type": "lora",
+                        "weight": 0.6
+                    },
+                    {
+                        "hash": "2abfc69f8d0c",
+                        "name": "nhl-004-wai",
+                        "type": "lora",
+                        "weight": 0.4
+                    },
+                    {
+                        "hash": "57a290fa77",
+                        "name": "lxlanil_v20",
+                        "type": "model"
+                    }
+                ],
+                "Model hash": "57a290fa77",
+                "ADetailer VAE": "sdxl_vae.safetensors",
+                "Schedule type": "Automatic",
+                "negativePrompt": "(worst quality:1.4), (low quality:1.4), (monochrome:1.1), (verybadimagenegativev1.3, bad-picture-chill-75v, badartistanime, BadDream, badhands5, boringe621v4, EasyNegative, FastNegativeV2, negativehandneg, ngdeepnegativev175t, UnspeakableHorrors64v), watermarks, signs, elongated, b&w, black&white, sepia,",
+                "ADetailer model": "face_yolov8s.pt",
+                "ADetailer steps": "28",
+                "ADetailer version": "25.3.0",
+                "ADetailer mask blur": "20",
+                "ADetailer confidence": "0.3",
+                "ADetailer dilate erode": "4",
+                "ADetailer inpaint padding": "32",
+                "ADetailer use separate VAE": "True",
+                "ADetailer denoising strength": "0.4",
+                "ADetailer use separate steps": "True",
+                "ADetailer inpaint only masked": "True"
+            },
+            "availability": "Public",
+            "hasMeta": true,
+            "hasPositivePrompt": true,
+            "onSite": false,
+            "remixOfId": null
+        },
+        {
+            "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/c9bedeb5-5e1b-423c-9d6c-7d659fa3f468/original=true/106613922.jpeg",
+            "nsfwLevel": 1,
+            "width": 832,
+            "height": 1408,
+            "hash": "UUD0cUM{.8RP_4kCt8t7ozxuM{t8j^oeM{RP",
+            "type": "image",
+            "metadata": {
+                "hash": "UUD0cUM{.8RP_4kCt8t7ozxuM{t8j^oeM{RP",
+                "size": 1634540,
+                "width": 832,
+                "height": 1408,
+                "nsfwLevelReason": null
+            },
+            "minor": false,
+            "poi": false,
+            "meta": {
+                "Size": "836x1412",
+                "seed": 3455107612,
+                "Model": "lxlanil_v20",
+                "steps": 30,
+                "hashes": {
+                    "model": "57a290fa77",
+                    "lora:Yoru": "7da35d03abdb"
+                },
+                "prompt": "anime coloring,anime style,beautiful,textural,(((masterpiece))),(((best quality))),((ultra-detailed)), solo,  <lora:Yoru:1>, yoru (chainsaw man), yoru, black cape, collared shirt, gloves, black pinafore dress, black hair, long hair, scar on face, black ribbon, outdoors, gray sky",
+                "Version": "f1.0.0v2-v1.10.1RC-latest-2463-g99bb3d5d",
+                "sampler": "Euler a",
+                "cfgScale": 5,
+                "resources": [
+                    {
+                        "hash": "7da35d03abdb",
+                        "name": "Yoru",
+                        "type": "lora",
+                        "weight": 1
+                    },
+                    {
+                        "hash": "57a290fa77",
+                        "name": "lxlanil_v20",
+                        "type": "model"
+                    }
+                ],
+                "Model hash": "57a290fa77",
+                "ADetailer VAE": "sdxl_vae.safetensors",
+                "Schedule type": "Automatic",
+                "negativePrompt": "(worst quality:1.4), (low quality:1.4), (monochrome:1.1), (verybadimagenegativev1.3, bad-picture-chill-75v, badartistanime, BadDream, badhands5, boringe621v4, EasyNegative, FastNegativeV2, negativehandneg, ngdeepnegativev175t, UnspeakableHorrors64v), watermarks, signs, elongated, b&w, black&white, sepia,",
+                "ADetailer model": "face_yolov8s.pt",
+                "ADetailer steps": "28",
+                "ADetailer version": "25.3.0",
+                "ADetailer mask blur": "20",
+                "ADetailer confidence": "0.3",
+                "ADetailer dilate erode": "4",
+                "ADetailer inpaint padding": "32",
+                "ADetailer use separate VAE": "True",
+                "ADetailer denoising strength": "0.4",
+                "ADetailer use separate steps": "True",
+                "ADetailer inpaint only masked": "True"
+            },
+            "availability": "Public",
+            "hasMeta": true,
+            "hasPositivePrompt": true,
+            "onSite": false,
+            "remixOfId": null
+        }
+    ],
+    "downloadUrl": "https://civitai.red/api/download/models/2324610"
+}

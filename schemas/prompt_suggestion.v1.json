@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-wdywfm.local/schemas/prompt_suggestion.v1.json",
+  "title": "PromptSuggestionV1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "prompt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 12000
+    },
+    "negative_prompt": {
+      "type": "string",
+      "maxLength": 6000
+    },
+    "models": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "loras": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "weight": {
+                "type": "number",
+                "minimum": -2,
+                "maximum": 2
+              },
+              "trigger_words": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 500
+              }
+            },
+            "required": [
+              "id",
+              "weight",
+              "trigger_words",
+              "reason"
+            ]
+          }
+        }
+      },
+      "required": [
+        "checkpoint_id",
+        "loras"
+      ]
+    },
+    "recommendations": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sampler": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scheduler": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sampling_steps": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 150
+        },
+        "cfg_scale": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 30
+        },
+        "width": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 64,
+          "maximum": 2048
+        },
+        "height": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 64,
+          "maximum": 2048
+        },
+        "denoising_strength": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "sampler",
+        "scheduler",
+        "sampling_steps",
+        "cfg_scale",
+        "width",
+        "height",
+        "denoising_strength"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 1200
+    },
+    "warnings": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "prompt",
+    "negative_prompt",
+    "models",
+    "recommendations",
+    "summary",
+    "warnings"
+  ]
+}

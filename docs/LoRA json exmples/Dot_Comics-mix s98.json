@@ -1,0 +1,11 @@
+{
+    "sha256": "95B227069579BD125A5958839859A97B9427424AF77D7B16A02636FEDD048CE8",
+    "modelId": 1700213,
+    "modelVersionId": 2230615,
+    "modelPageURL": "https://civitai.red/models/1700213?modelVersionId=2230615",
+    "activation text": "monochrome, greyscale, spot_color, high_contrast, sharp_lineart, clean_lineart.cel_shading",
+    "activation text groups": [
+        "monochrome, greyscale, spot_color, high_contrast, sharp_lineart, clean_lineart.cel_shading"
+    ],
+    "sd version": "Illustrious"
+}

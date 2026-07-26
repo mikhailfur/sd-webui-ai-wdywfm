@@ -1,0 +1,472 @@
+{
+    "id": 2322119,
+    "modelId": 2051871,
+    "name": "IL",
+    "nsfwLevel": 60,
+    "createdAt": "2025-10-17T11:22:53.716Z",
+    "updatedAt": "2025-11-09T05:38:31.547Z",
+    "status": "Published",
+    "publishedAt": "2025-11-11T12:25:48.793Z",
+    "trainedWords": [
+        "1girl,solo,mm,mature female,black choker,grenade pin choker,grenade pin,black hair,hair between eyes,hair bun,green eyes,anime coloring",
+        "collared shirt,sleeveless,sleeveless shirt,white shirt,neck ribbon,black shorts,black thighhighs,brown shoes",
+        "raglan sleeves,shirt,pants"
+    ],
+    "trainingStatus": "Approved",
+    "trainingDetails": {
+        "type": "Character",
+        "params": {
+            "engine": "kohya",
+            "unetLR": 0.0005,
+            "clipSkip": 1,
+            "loraType": "lora",
+            "keepTokens": 0,
+            "networkDim": 32,
+            "numRepeats": 29,
+            "resolution": 1024,
+            "lrScheduler": "cosine_with_restarts",
+            "minSnrGamma": 5,
+            "noiseOffset": 0.1,
+            "targetSteps": 3045,
+            "enableBucket": true,
+            "networkAlpha": 16,
+            "optimizerType": "AdamW8Bit",
+            "textEncoderLR": 5e-05,
+            "maxTrainEpochs": 5,
+            "shuffleCaption": false,
+            "trainBatchSize": 4,
+            "flipAugmentation": false,
+            "lrSchedulerNumCycles": 3
+        },
+        "staging": false,
+        "baseModel": "urn:air:sdxl:checkpoint:civitai:1252206@1411690",
+        "mediaType": "image",
+        "highPriority": false,
+        "baseModelType": "sdxl",
+        "samplePrompts": [
+            "1girl,solo,mm,mature female,black choker,grenade pin choker,grenade pin,black hair,hair between eyes,hair bun,green eyes,anime coloring,raglan sleeves,shirt,pants",
+            "1girl,solo,mm,mature female,black choker,grenade pin choker,grenade pin,black hair,hair between eyes,hair bun,green eyes,anime coloring,collared shirt,sleeveless,sleeveless shirt,white shirt,neck ribbon,black shorts,black thighhighs,brown shoes",
+            "1girl,solo,mm,mature female,black choker,grenade pin choker,grenade pin,black hair,hair between eyes,hair bun,green eyes,anime coloring,nude,nipples,pussy"
+        ],
+        "negativePrompt": "bad quality, low quality, worst quality, jpeg artifacts, blurry, pixelated, out of focus, watermark, text, signature"
+    },
+    "baseModel": "Illustrious",
+    "baseModelType": "Standard",
+    "earlyAccessEndsAt": null,
+    "earlyAccessConfig": {
+        "timeframe": 0,
+        "donationGoal": 5000,
+        "downloadPrice": 250,
+        "donationGoalId": 14938,
+        "chargeForDownload": true,
+        "originalTimeframe": "9",
+        "chargeForGeneration": false,
+        "donationGoalEnabled": true,
+        "originalPublishedAt": "2025-11-09T05:38:31.519",
+        "generationTrialLimit": 10
+    },
+    "description": null,
+    "uploadType": "Trained",
+    "usageControl": "Download",
+    "licensingFee": null,
+    "air": "urn:air:sdxl:lora:civitai:2051871@2322119",
+    "stats": {
+        "downloadCount": 2444,
+        "thumbsUpCount": 406
+    },
+    "model": {
+        "name": "Reze-Chainsaw Man – The Movie Reze Arc-IL",
+        "type": "LORA",
+        "nsfw": true,
+        "poi": false
+    },
+    "files": [
+        {
+            "id": 2279927,
+            "sizeKB": 223106.23828125,
+            "name": "Reze.safetensors",
+            "overrideName": null,
+            "type": "Model",
+            "pickleScanResult": "Success",
+            "pickleScanMessage": "No Pickle imports",
+            "virusScanResult": "Success",
+            "virusScanMessage": null,
+            "scannedAt": "2025-11-09T05:25:43.840Z",
+            "metadata": {
+                "format": "SafeTensor"
+            },
+            "hashes": {
+                "AutoV1": "243B402B",
+                "AutoV2": "6EB7A29E96",
+                "SHA256": "6EB7A29E96B8355485E2ADC3069695E84FD08F574919DC8AE642CF6CB0F8B1BA",
+                "CRC32": "97E88914",
+                "BLAKE3": "915A17EB6BFA33955500490FEFDBACBC7A1093129EAEA34F631E6D8C7979B2F3",
+                "AutoV3": "B9E37C391F3B"
+            },
+            "primary": true,
+            "downloadUrl": "https://civitai.red/api/download/models/2322119"
+        }
+    ],
+    "images": [
+        {
+            "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/0ff26178-e9dc-48e8-bf97-36eb7f4905be/original=true/109503934.jpeg",
+            "nsfwLevel": 1,
+            "width": 1152,
+            "height": 1728,
+            "hash": "UFFrnn00?b$f?b4n~pD*IU%LofaKfjNHMy%M",
+            "type": "image",
+            "metadata": {
+                "hash": "UFFrnn00?b$f?b4n~pD*IU%LofaKfjNHMy%M",
+                "size": 1519084,
+                "width": 1152,
+                "height": 1728,
+                "nsfwLevelReason": "Knights Vote"
+            },
+            "minor": false,
+            "poi": false,
+            "meta": {
+                "VAE": "sdxl_vae.safetensors",
+                "Size": "768x1152",
+                "seed": 742413459,
+                "Model": "nlxl_v09",
+                "steps": 30,
+                "hashes": {
+                    "vae": "e587f2eeb0",
+                    "model": "564f7ff893",
+                    "lora:Reze": "b9e37c391f3b"
+                },
+                "prompt": "masterpiece, best quality, <lora:Reze:0.8> ,1girl,solo,mm,mature female,black choker,grenade pin choker,grenade pin,black hair,hair between eyes,hair bun,green eyes,anime coloring,anime screenshot,\ncollared shirt,sleeveless,sleeveless shirt,white shirt,neck ribbon,upper body, looking at viewer, smile,indoors",
+                "Version": "f1.0.0v2-v1.10.1RC-latest-2465-g64a2cd48",
+                "sampler": "Euler a",
+                "cfgScale": 5,
+                "TI hashes": {
+                    "lazyneg": "ba21023c7054",
+                    "lazyhand": "e12c4bd33649"
+                },
+                "resources": [
+                    {
+                        "hash": "b9e37c391f3b",
+                        "name": "Reze",
+                        "type": "lora",
+                        "weight": 0.8
+                    },
+                    {
+                        "hash": "564f7ff893",
+                        "name": "nlxl_v09",
+                        "type": "model"
+                    }
+                ],
+                "Model hash": "564f7ff893",
+                "Hires steps": "20",
+                "Hires upscale": "1.5",
+                "Schedule type": "SGM Uniform",
+                "Hires upscaler": "4x_foolhardy_Remacri",
+                "negativePrompt": "bad quality, worst quality, worst detail,extra digits, speech bubble,logo,watermark,artist logo,patreon logo,speech bubble,text, lazyneg, lazyhand, bad hands, censored,mosaic censoring,2koma,3koma,4koma,",
+                "ADetailer model": "face_yolov8s.pt",
+                "Hires CFG Scale": "5",
+                "ADetailer version": "25.3.0",
+                "Denoising strength": "0.3",
+                "ADetailer mask blur": "4",
+                "Hires schedule type": "SGM Uniform",
+                "ADetailer confidence": "0.3",
+                "ADetailer dilate erode": "4",
+                "ADetailer inpaint padding": "32",
+                "ADetailer denoising strength": "0.3",
+                "ADetailer inpaint only masked": "True"
+            },
+            "availability": "Public",
+            "hasMeta": true,
+            "hasPositivePrompt": true,
+            "onSite": false,
+            "remixOfId": null
+        },
+        {
+            "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/cc9ba8cb-0474-4cb2-896f-7533449f8ceb/original=true/109503938.jpeg",
+            "nsfwLevel": 1,
+            "width": 1152,
+            "height": 1728,
+            "hash": "UMG*s74:WUso0OobxtNG~7V[-pM{0NofoJWV",
+            "type": "image",
+            "metadata": {
+                "hash": "UMG*s74:WUso0OobxtNG~7V[-pM{0NofoJWV",
+                "size": 1523607,
+                "width": 1152,
+                "height": 1728,
+                "nsfwLevelReason": "Knights Vote"
+            },
+            "minor": false,
+            "poi": false,
+            "meta": {
+                "VAE": "sdxl_vae.safetensors",
+                "Size": "768x1152",
+                "seed": 2527432499,
+                "Model": "nlxl_v09",
+                "steps": 30,
+                "hashes": {
+                    "vae": "e587f2eeb0",
+                    "model": "564f7ff893",
+                    "lora:Reze": "b9e37c391f3b"
+                },
+                "prompt": "masterpiece, best quality, <lora:Reze:0.8> ,1girl,solo,mm,mature female,black choker,grenade pin choker,grenade pin,black hair,hair between eyes,hair bun,anime coloring,anime screenshot,\ncollared shirt,sleeveless,sleeveless shirt,white shirt,neck ribbon,black shorts,black thighhighs,own hands together,open mouth, smile,closed eyes, indoors,sitting,on chair,hands up,open hands,happy,light blush",
+                "Version": "f1.0.0v2-v1.10.1RC-latest-2465-g64a2cd48",
+                "sampler": "Euler a",
+                "cfgScale": 5,
+                "TI hashes": {
+                    "lazyneg": "ba21023c7054",
+                    "lazyhand": "e12c4bd33649"
+                },
+                "resources": [
+                    {
+                        "hash": "b9e37c391f3b",
+                        "name": "Reze",
+                        "type": "lora",
+                        "weight": 0.8
+                    },
+                    {
+                        "hash": "564f7ff893",
+                        "name": "nlxl_v09",
+                        "type": "model"
+                    }
+                ],
+                "Model hash": "564f7ff893",
+                "Hires steps": "20",
+                "Hires upscale": "1.5",
+                "Schedule type": "SGM Uniform",
+                "Hires upscaler": "4x_foolhardy_Remacri",
+                "negativePrompt": "bad quality, worst quality, worst detail,extra digits, speech bubble,logo,watermark,artist logo,patreon logo,speech bubble,text, lazyneg, lazyhand, bad hands, censored,mosaic censoring,2koma,3koma,4koma,",
+                "ADetailer model": "face_yolov8s.pt",
+                "Hires CFG Scale": "5",
+                "ADetailer version": "25.3.0",
+                "Denoising strength": "0.3",
+                "ADetailer mask blur": "4",
+                "Hires schedule type": "SGM Uniform",
+                "ADetailer confidence": "0.3",
+                "ADetailer dilate erode": "4",
+                "ADetailer inpaint padding": "32",
+                "ADetailer denoising strength": "0.3",
+                "ADetailer inpaint only masked": "True"
+            },
+            "availability": "Public",
+            "hasMeta": true,
+            "hasPositivePrompt": true,
+            "onSite": false,
+            "remixOfId": null
+        },
+        {
+            "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/653b4bec-fbcd-4b4a-af89-e3d1786ae08c/original=true/109503936.jpeg",
+            "nsfwLevel": 1,
+            "width": 1152,
+            "height": 1728,
+            "hash": "UED9t_4.00~p~pD*D*?bM|RQS1%Mx]RjMyxu",
+            "type": "image",
+            "metadata": {
+                "hash": "UED9t_4.00~p~pD*D*?bM|RQS1%Mx]RjMyxu",
+                "size": 1663312,
+                "width": 1152,
+                "height": 1728,
+                "nsfwLevelReason": "Knights Vote"
+            },
+            "minor": false,
+            "poi": false,
+            "meta": {
+                "VAE": "sdxl_vae.safetensors",
+                "Size": "768x1152",
+                "seed": 2501590273,
+                "Model": "nlxl_v09",
+                "steps": 30,
+                "hashes": {
+                    "vae": "e587f2eeb0",
+                    "model": "564f7ff893",
+                    "lora:Reze": "b9e37c391f3b"
+                },
+                "prompt": "masterpiece, best quality, <lora:Reze:0.8> ,1girl,solo,mm,mature female,black choker,grenade pin choker,grenade pin,black hair,hair between eyes,green eyes,hair bun,anime coloring,anime screenshot,\ncollared shirt,sleeveless,sleeveless shirt,white shirt,neck ribbon,black shorts,black thighhighs,arms behind back,leaning forward, grin,naughty face, outdoors,looking at viewer,",
+                "Version": "f1.0.0v2-v1.10.1RC-latest-2465-g64a2cd48",
+                "sampler": "Euler a",
+                "cfgScale": 5,
+                "TI hashes": {
+                    "lazyneg": "ba21023c7054",
+                    "lazyhand": "e12c4bd33649"
+                },
+                "resources": [
+                    {
+                        "hash": "b9e37c391f3b",
+                        "name": "Reze",
+                        "type": "lora",
+                        "weight": 0.8
+                    },
+                    {
+                        "hash": "564f7ff893",
+                        "name": "nlxl_v09",
+                        "type": "model"
+                    }
+                ],
+                "Model hash": "564f7ff893",
+                "Hires steps": "20",
+                "Hires upscale": "1.5",
+                "Schedule type": "SGM Uniform",
+                "Hires upscaler": "4x_foolhardy_Remacri",
+                "negativePrompt": "bad quality, worst quality, worst detail,extra digits, speech bubble,logo,watermark,artist logo,patreon logo,speech bubble,text, lazyneg, lazyhand, bad hands, censored,mosaic censoring,2koma,3koma,4koma,",
+                "ADetailer model": "face_yolov8s.pt",
+                "Hires CFG Scale": "5",
+                "ADetailer version": "25.3.0",
+                "Denoising strength": "0.3",
+                "ADetailer mask blur": "4",
+                "Hires schedule type": "SGM Uniform",
+                "ADetailer confidence": "0.3",
+                "ADetailer dilate erode": "4",
+                "ADetailer inpaint padding": "32",
+                "ADetailer denoising strength": "0.3",
+                "ADetailer inpaint only masked": "True"
+            },
+            "availability": "Public",
+            "hasMeta": true,
+            "hasPositivePrompt": true,
+            "onSite": false,
+            "remixOfId": null
+        },
+        {
+            "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/469ad1d6-5cd5-4b70-a9ee-7f60e94efdbb/original=true/109503937.jpeg",
+            "nsfwLevel": 1,
+            "width": 1152,
+            "height": 1728,
+            "hash": "U8Fixw9Y0$?v%hWC_MkD0Mnm^jjJD%RjM{M{",
+            "type": "image",
+            "metadata": {
+                "hash": "U8Fixw9Y0$?v%hWC_MkD0Mnm^jjJD%RjM{M{",
+                "size": 2101711,
+                "width": 1152,
+                "height": 1728,
+                "nsfwLevelReason": "Knights Vote"
+            },
+            "minor": false,
+            "poi": false,
+            "meta": {
+                "VAE": "sdxl_vae.safetensors",
+                "Size": "768x1152",
+                "seed": 2128954351,
+                "Model": "nlxl_v09",
+                "steps": 30,
+                "hashes": {
+                    "vae": "e587f2eeb0",
+                    "model": "564f7ff893",
+                    "lora:Reze": "b9e37c391f3b"
+                },
+                "prompt": "masterpiece, best quality, <lora:Reze:0.8> ,1girl,solo,mm,mature female,black choker,grenade pin choker,grenade pin,black hair,hair between eyes,green eyes,hair bun,anime coloring,anime screenshot,\nraglan sleeves,shirt,pants,rain,wet,holding flower, looking at viewer, smile,blush,outdoors",
+                "Version": "f1.0.0v2-v1.10.1RC-latest-2465-g64a2cd48",
+                "sampler": "Euler a",
+                "cfgScale": 5,
+                "TI hashes": {
+                    "lazyneg": "ba21023c7054",
+                    "lazyhand": "e12c4bd33649"
+                },
+                "resources": [
+                    {
+                        "hash": "b9e37c391f3b",
+                        "name": "Reze",
+                        "type": "lora",
+                        "weight": 0.8
+                    },
+                    {
+                        "hash": "564f7ff893",
+                        "name": "nlxl_v09",
+                        "type": "model"
+                    }
+                ],
+                "Model hash": "564f7ff893",
+                "Hires steps": "20",
+                "Hires upscale": "1.5",
+                "Schedule type": "SGM Uniform",
+                "Hires upscaler": "4x_foolhardy_Remacri",
+                "negativePrompt": "bad quality, worst quality, worst detail,extra digits, speech bubble,logo,watermark,artist logo,patreon logo,speech bubble,text, lazyneg, lazyhand, bad hands, censored,mosaic censoring,2koma,3koma,4koma,",
+                "ADetailer model": "face_yolov8s.pt",
+                "Hires CFG Scale": "5",
+                "ADetailer version": "25.3.0",
+                "Denoising strength": "0.3",
+                "ADetailer mask blur": "4",
+                "Hires schedule type": "SGM Uniform",
+                "ADetailer confidence": "0.3",
+                "ADetailer dilate erode": "4",
+                "ADetailer inpaint padding": "32",
+                "ADetailer denoising strength": "0.3",
+                "ADetailer inpaint only masked": "True"
+            },
+            "availability": "Public",
+            "hasMeta": true,
+            "hasPositivePrompt": true,
+            "onSite": false,
+            "remixOfId": null
+        },
+        {
+            "url": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/e15b8da6-4006-4c63-94b1-bb78d151ad94/original=true/109503935.jpeg",
+            "nsfwLevel": 8,
+            "width": 1728,
+            "height": 1152,
+            "hash": "U461G@NH8w.THXVrX-s:H;o}%eM{MHt6xtMx",
+            "type": "image",
+            "metadata": {
+                "hash": "U461G@NH8w.THXVrX-s:H;o}%eM{MHt6xtMx",
+                "size": 1801628,
+                "width": 1728,
+                "height": 1152
+            },
+            "minor": false,
+            "poi": false,
+            "meta": {
+                "VAE": "sdxl_vae.safetensors",
+                "Size": "1152x768",
+                "seed": 2592594538,
+                "Model": "nlxl_v09",
+                "steps": 30,
+                "hashes": {
+                    "vae": "e587f2eeb0",
+                    "model": "564f7ff893",
+                    "lora:Reze": "b9e37c391f3b"
+                },
+                "prompt": "masterpiece, best quality, <lora:Reze:0.8> ,1girl,solo,mm,mature female,black choker,grenade pin choker,grenade pin,black hair,hair between eyes,green eyes,hair bun,anime coloring,anime screenshot,\nnude,pool,night,outdoors,in water,upper body, outstretched arms, reaching towards viewer, open hands,looking at viewer, parted lips, wet,light blush,smile",
+                "Version": "f1.0.0v2-v1.10.1RC-latest-2465-g64a2cd48",
+                "sampler": "Euler a",
+                "cfgScale": 5,
+                "TI hashes": {
+                    "lazyneg": "ba21023c7054",
+                    "lazyhand": "e12c4bd33649"
+                },
+                "resources": [
+                    {
+                        "hash": "b9e37c391f3b",
+                        "name": "Reze",
+                        "type": "lora",
+                        "weight": 0.8
+                    },
+                    {
+                        "hash": "564f7ff893",
+                        "name": "nlxl_v09",
+                        "type": "model"
+                    }
+                ],
+                "Model hash": "564f7ff893",
+                "Hires steps": "20",
+                "Hires upscale": "1.5",
+                "Schedule type": "SGM Uniform",
+                "Hires upscaler": "4x_foolhardy_Remacri",
+                "negativePrompt": "bad quality, worst quality, worst detail,extra digits, speech bubble,logo,watermark,artist logo,patreon logo,speech bubble,text, lazyneg, lazyhand, bad hands, censored,mosaic censoring,2koma,3koma,4koma,",
+                "ADetailer model": "face_yolov8s.pt",
+                "Hires CFG Scale": "5",
+                "ADetailer version": "25.3.0",
+                "Denoising strength": "0.3",
+                "ADetailer mask blur": "4",
+                "Hires schedule type": "SGM Uniform",
+                "ADetailer confidence": "0.3",
+                "ADetailer dilate erode": "4",
+                "ADetailer inpaint padding": "32",
+                "ADetailer denoising strength": "0.3",
+                "ADetailer inpaint only masked": "True"
+            },
+            "availability": "Public",
+            "hasMeta": true,
+            "hasPositivePrompt": true,
+            "onSite": false,
+            "remixOfId": null
+        }
+    ],
+    "downloadUrl": "https://civitai.red/api/download/models/2322119"
+}
