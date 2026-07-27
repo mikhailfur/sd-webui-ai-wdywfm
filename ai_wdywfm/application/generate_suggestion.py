@@ -34,6 +34,7 @@ def generate(
     timeout: float,
     image_max_side: int,
     request_id: str,
+    lmstudio_ttl: int | None = None,
 ) -> PromptSuggestion:
     if not user_text or not user_text.strip():
         raise ValidationError("Describe the image or edit you want.")
@@ -75,6 +76,7 @@ def generate(
         envelope=envelope,
         schema=schema,
         image_url=image_url,
+        ttl=lmstudio_ttl if provider == "LM Studio" else None,
     )
     constraints = inventory.get("constraints", {})
     return _validate_payload(payload, mode, inventory, constraints)

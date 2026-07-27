@@ -110,6 +110,26 @@ def build_inventory(maximum_items: int = 80, query: str = "") -> dict[str, Any]:
     }
 
 
+def unload_sd_checkpoint() -> bool:
+    """Best-effort GPU VRAM release for the currently loaded SD/SDXL checkpoint.
+
+    Mirrors the built-in Settings > Actions > "Unload SD checkpoint" button.
+    Forge reloads the checkpoint lazily on the next txt2img/img2img run, so
+    this is safe to call speculatively. Never raises; returns False if there
+    was nothing to unload or the runtime does not support it.
+    """
+    try:
+        from modules import sd_models
+
+        current = sd_models.model_data.sd_model
+        if current is None or isinstance(current, sd_models.FakeInitialModel):
+            return False
+        sd_models.unload_model_weights()
+        return True
+    except Exception:
+        return False
+
+
 def _cached_user_metadata(filename: str) -> dict[str, Any]:
     path = Path(filename).with_suffix(".json")
     try:

@@ -5,6 +5,7 @@ from ai_wdywfm.infrastructure.forge_neo.inventory import (
     _activation_words,
     _preferred_weight,
     _read_user_metadata_file,
+    unload_sd_checkpoint,
 )
 
 
@@ -43,6 +44,34 @@ class InventoryMetadataTests(unittest.TestCase):
             self.assertEqual(
                 _read_user_metadata_file(target, 2, 34)["activation text"], "second value"
             )
+
+
+    def test_unload_sd_checkpoint_is_safe_outside_forge_runtime(self):
+        self.assertFalse(unload_sd_checkpoint())
+
+    def test_unload_sd_checkpoint_skips_when_nothing_loaded(self):
+        fake_sd_models = unittest.mock.MagicMock()
+
+        class FakeInitialModel:
+            pass
+
+        fake_sd_models.FakeInitialModel = FakeInitialModel
+        fake_sd_models.model_data.sd_model = FakeInitialModel()
+        with patch.dict("sys.modules", {"modules": unittest.mock.MagicMock(sd_models=fake_sd_models)}):
+            self.assertFalse(unload_sd_checkpoint())
+            fake_sd_models.unload_model_weights.assert_not_called()
+
+    def test_unload_sd_checkpoint_unloads_when_model_present(self):
+        fake_sd_models = unittest.mock.MagicMock()
+
+        class FakeInitialModel:
+            pass
+
+        fake_sd_models.FakeInitialModel = FakeInitialModel
+        fake_sd_models.model_data.sd_model = object()
+        with patch.dict("sys.modules", {"modules": unittest.mock.MagicMock(sd_models=fake_sd_models)}):
+            self.assertTrue(unload_sd_checkpoint())
+            fake_sd_models.unload_model_weights.assert_called_once()
 
 
 if __name__ == "__main__":

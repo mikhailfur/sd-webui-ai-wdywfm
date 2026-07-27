@@ -9,7 +9,11 @@ import gradio as gr
 from ai_wdywfm.application.apply_prompts import apply_prompt_fields
 from ai_wdywfm.application.generate_suggestion import generate
 from ai_wdywfm.domain.errors import WdywfmError
-from ai_wdywfm.infrastructure.forge_neo.inventory import build_inventory, compatibility
+from ai_wdywfm.infrastructure.forge_neo.inventory import (
+    build_inventory,
+    compatibility,
+    unload_sd_checkpoint,
+)
 from ai_wdywfm.infrastructure.diagnostics import get_logger, log_path, read_log_tail
 from ai_wdywfm.infrastructure.provider_state import load_provider_state, save_provider_state
 from ai_wdywfm.infrastructure.providers.openai_compatible import OpenAICompatibleClient
@@ -31,6 +35,25 @@ def _timeout_for(provider: str) -> float:
     if provider == "LM Studio":
         return float(get_setting("wdywfm_timeout_lmstudio", 180))
     return float(get_setting("wdywfm_timeout", 60))
+
+
+def _lmstudio_ttl(provider: str) -> int | None:
+    if provider != "LM Studio":
+        return None
+    if not bool(get_setting("wdywfm_lmstudio_auto_unload", True)):
+        return None
+    return int(get_setting("wdywfm_lmstudio_unload_ttl", 20))
+
+
+def _maybe_unload_sdxl(provider: str, request_id: str) -> bool:
+    if provider != "LM Studio":
+        return False
+    if not bool(get_setting("wdywfm_sdxl_auto_unload", True)):
+        return False
+    freed = unload_sd_checkpoint()
+    if freed:
+        get_logger().info("request=%s sdxl.unloaded reason=lmstudio_request", request_id)
+    return freed
 
 
 def build_panel(*, is_img2img: bool, prompt_component, negative_component) -> None:
@@ -357,9 +380,11 @@ def _generate(
             len(constraints.get("allowed_samplers", [])),
             len(constraints.get("allowed_schedulers", [])),
         )
+        sdxl_freed = _maybe_unload_sdxl(provider, request_id)
         yield _activity_update(
             f"Request `{request_id}` · "
             f"{'Gemma 4 fast profile · ' if is_gemma4_model(model or '') else ''}"
+            f"{'SD checkpoint unloaded, ' if sdxl_freed else ''}"
             f"waiting for {provider} "
             f"(timeout {_timeout_for(provider):g}s)…"
         )
@@ -380,6 +405,7 @@ def _generate(
             timeout=_timeout_for(provider),
             image_max_side=int(get_setting("wdywfm_image_max_side", 1536)),
             request_id=request_id,
+            lmstudio_ttl=_lmstudio_ttl(provider),
         )
     except WdywfmError as exc:
         logger.warning(

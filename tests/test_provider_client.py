@@ -99,5 +99,67 @@ class ProviderClientTests(unittest.TestCase):
         self.assertIn("response_format", payloads[0])
 
 
+    def test_lmstudio_ttl_is_forwarded_for_auto_unload(self):
+        client = OpenAICompatibleClient(
+            provider="LM Studio",
+            base_url="http://127.0.0.1:1234/v1",
+            api_key="",
+            timeout=1,
+            request_id="ttl-test",
+        )
+        response = {
+            "choices": [{
+                "finish_reason": "stop",
+                "message": {"content": '{"ok":true}'},
+            }]
+        }
+        captured = {}
+
+        def fake_request(method, path, json_body=None):
+            captured.update(json_body or {})
+            return response
+
+        client._request = fake_request
+        client.complete(
+            model="local-model",
+            system_prompt="Return JSON.",
+            envelope={"test": True},
+            schema={"type": "object"},
+            image_url=None,
+            ttl=20,
+        )
+        self.assertEqual(captured["ttl"], 20)
+
+    def test_lmstudio_ttl_omitted_when_none(self):
+        client = OpenAICompatibleClient(
+            provider="LM Studio",
+            base_url="http://127.0.0.1:1234/v1",
+            api_key="",
+            timeout=1,
+            request_id="no-ttl-test",
+        )
+        response = {
+            "choices": [{
+                "finish_reason": "stop",
+                "message": {"content": '{"ok":true}'},
+            }]
+        }
+        captured = {}
+
+        def fake_request(method, path, json_body=None):
+            captured.update(json_body or {})
+            return response
+
+        client._request = fake_request
+        client.complete(
+            model="local-model",
+            system_prompt="Return JSON.",
+            envelope={"test": True},
+            schema={"type": "object"},
+            image_url=None,
+        )
+        self.assertNotIn("ttl", captured)
+
+
 if __name__ == "__main__":
     unittest.main()

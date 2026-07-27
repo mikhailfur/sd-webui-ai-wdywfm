@@ -56,6 +56,7 @@ class OpenAICompatibleClient:
         envelope: dict[str, Any],
         schema: dict[str, Any],
         image_url: str | None,
+        ttl: int | None = None,
     ) -> dict[str, Any]:
         gemma4 = self.provider == "OpenRouter" and is_gemma4_model(model)
         content: list[dict[str, Any]] = [
@@ -84,6 +85,11 @@ class OpenAICompatibleClient:
         if self.provider == "OpenRouter":
             payload["provider"] = {"require_parameters": not gemma4}
             payload["plugins"] = [{"id": "response-healing"}]
+        elif ttl is not None:
+            # LM Studio JIT-load/idle-TTL extension field: unloads the model
+            # from GPU memory this many seconds after the last request, so it
+            # does not keep competing with Stable Diffusion for VRAM.
+            payload["ttl"] = ttl
         if gemma4:
             effective_system_prompt = apply_gemma4_profile(payload, system_prompt)
             payload["messages"][0]["content"] = effective_system_prompt
@@ -93,9 +99,9 @@ class OpenAICompatibleClient:
                 payload["max_tokens"],
             )
         self.logger.info(
-            "request=%s completion.start provider=%s model=%s vision=%s envelope_chars=%d timeout=%ss",
+            "request=%s completion.start provider=%s model=%s vision=%s envelope_chars=%d timeout=%ss ttl=%s",
             self.request_id, self.provider, model, bool(image_url),
-            len(content[0]["text"]), self.timeout,
+            len(content[0]["text"]), self.timeout, payload.get("ttl", "n/a"),
         )
         response = self._request("POST", "/chat/completions", json_body=payload)
         try:
