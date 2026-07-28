@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/banner.png" alt="WDYWFM — AI Prompt Helper for Forge Neo" width="100%">
+
 # ai-wdywfm
 
 ### AI LLM SD WebUI Helper
@@ -12,11 +14,11 @@ Turn a plain-language idea—or an image plus editing instructions—into Stable
 [![Gradio 4.40](https://img.shields.io/badge/Gradio-4.40-f97316?style=for-the-badge)](https://www.gradio.app/)
 [![OpenRouter](https://img.shields.io/badge/LLM-OpenRouter-7c3aed?style=for-the-badge)](https://openrouter.ai/)
 [![LM Studio](https://img.shields.io/badge/LLM-LM_Studio-0f766e?style=for-the-badge)](https://lmstudio.ai/)
-[![Status](https://img.shields.io/badge/status-v0.1_MVP-22c55e?style=for-the-badge)](ROADMAP.md)
+[![Status](https://img.shields.io/badge/status-v0.1_MVP-22c55e?style=for-the-badge)](docs/ROADMAP.md)
 
-**English** · [Русский](README_RU.md) · [한국어](README_KO.md) · [日本語](README_JA.md) · [简体中文](README_ZH_CN.md) · [繁體中文](README_ZH_TW.md)
+**English** · [Русский](docs/README_RU.md) · [한국어](docs/README_KO.md) · [日本語](docs/README_JA.md) · [简体中文](docs/README_ZH_CN.md) · [繁體中文](docs/README_ZH_TW.md)
 
-[Overview](#overview) · [How it works](#how-it-works) · [Architecture](#architecture) · [Roadmap](ROADMAP.md) · [Support the project](#support-the-project)
+[Overview](#overview) · [How it works](#how-it-works) · [Architecture](#architecture) · [Roadmap](docs/ROADMAP.md) · [Support the project](#support-the-project)
 
 </div>
 
@@ -353,7 +355,7 @@ Read the complete [Architecture document](docs/ARCHITECTURE.md).
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [LLM Protocol](docs/LLM_PROTOCOL.md)
-- [Roadmap](ROADMAP.md)
+- [Roadmap](docs/ROADMAP.md)
 - [Prompt examples](docs/promptexmaple.md)
 - `docs/LoRA json exmples/` — local metadata fixtures
 - `docs/sd-civitai-browser-neo-main/` — studied Forge Neo CivitAI reference

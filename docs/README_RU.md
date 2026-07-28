@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="banner.png" alt="WDYWFM — ИИ-помощник по промптам для Forge Neo" width="100%">
+
 # ai-wdywfm
 
 ### AI LLM-помощник для SD WebUI
@@ -14,7 +16,7 @@
 [![LM Studio](https://img.shields.io/badge/LLM-LM_Studio-0f766e?style=for-the-badge)](https://lmstudio.ai/)
 [![Status](https://img.shields.io/badge/status-v0.1_MVP-22c55e?style=for-the-badge)](ROADMAP.md)
 
-[English](README.md) · **Русский** · [한국어](README_KO.md) · [日本語](README_JA.md) · [简体中文](README_ZH_CN.md) · [繁體中文](README_ZH_TW.md)
+[English](../README.md) · **Русский** · [한국어](README_KO.md) · [日本語](README_JA.md) · [简体中文](README_ZH_CN.md) · [繁體中文](README_ZH_TW.md)
 
 [Обзор](#обзор) · [Как это работает](#как-это-работает) · [Архитектура](#архитектура) · [Roadmap](ROADMAP.md) · [Поддержать проект](#поддержать-проект)
 
@@ -232,7 +234,7 @@ Hash больших checkpoint вычисляется лениво. Расшир
 
 ## Контракт структурированного ответа
 
-Каноническая schema: [prompt_suggestion.v1.json](schemas/prompt_suggestion.v1.json). Ответ содержит:
+Каноническая schema: [prompt_suggestion.v1.json](../schemas/prompt_suggestion.v1.json). Ответ содержит:
 
 ```json
 {
@@ -259,7 +261,7 @@ Hash больших checkpoint вычисляется лениво. Расшир
 
 К Forge могут применяться только `prompt` и `negative_prompt`. ID моделей, веса LoRA, sampler, scheduler и диапазоны значений проходят дополнительную семантическую проверку по активным реестрам Neo.
 
-Полная спецификация: [LLM Protocol](docs/LLM_PROTOCOL.md).
+Полная спецификация: [LLM Protocol](LLM_PROTOCOL.md).
 
 ## Архитектура
 
@@ -306,7 +308,7 @@ sd-webui-ai-wdywfm/
 └── docs/
 ```
 
-Прочитайте полный документ [Архитектура](docs/ARCHITECTURE.md).
+Прочитайте полный документ [Архитектура](ARCHITECTURE.md).
 
 ## Приватность и безопасность
 
@@ -354,10 +356,10 @@ sd-webui-ai-wdywfm/
 
 ## Документация
 
-- [Архитектура](docs/ARCHITECTURE.md)
-- [LLM Protocol](docs/LLM_PROTOCOL.md)
+- [Архитектура](ARCHITECTURE.md)
+- [LLM Protocol](LLM_PROTOCOL.md)
 - [Roadmap](ROADMAP.md)
-- [Примеры промптов](docs/promptexmaple.md)
+- [Примеры промптов](promptexmaple.md)
 - `docs/LoRA json exmples/` — локальные fixtures metadata
 - `docs/sd-civitai-browser-neo-main/` — изученная референсная реализация CivitAI для Forge Neo
 

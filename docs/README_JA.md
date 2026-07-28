@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="banner.png" alt="WDYWFM — Forge Neo 用 AI プロンプトヘルパー" width="100%">
+
 # ai-wdywfm
 
 ### AI LLM SD WebUI ヘルパー
@@ -14,7 +16,7 @@
 [![LM Studio](https://img.shields.io/badge/LLM-LM_Studio-0f766e?style=for-the-badge)](https://lmstudio.ai/)
 [![Status](https://img.shields.io/badge/status-v0.1_MVP-22c55e?style=for-the-badge)](ROADMAP.md)
 
-[English](README.md) · [Русский](README_RU.md) · [한국어](README_KO.md) · **日本語** · [简体中文](README_ZH_CN.md) · [繁體中文](README_ZH_TW.md)
+[English](../README.md) · [Русский](README_RU.md) · [한국어](README_KO.md) · **日本語** · [简体中文](README_ZH_CN.md) · [繁體中文](README_ZH_TW.md)
 
 [概要](#概要) · [仕組み](#仕組み) · [アーキテクチャ](#アーキテクチャ) · [ロードマップ](ROADMAP.md) · [プロジェクトを支援](#プロジェクトを支援)
 
@@ -173,7 +175,7 @@ CivitAI 対応は内部実装で、**CivitAI Browser Neo は実行時依存で�
 
 ## 構造化レスポンス契約
 
-正規スキーマは [prompt_suggestion.v1.json](schemas/prompt_suggestion.v1.json) です。
+正規スキーマは [prompt_suggestion.v1.json](../schemas/prompt_suggestion.v1.json) です。
 
 ```json
 {
@@ -191,7 +193,7 @@ CivitAI 対応は内部実装で、**CivitAI Browser Neo は実行時依存で�
 }
 ```
 
-Forge に適用できるのは `prompt` と `negative_prompt` だけです。モデル ID、LoRA 重み、サンプラー、スケジューラー、値範囲は現在の Neo レジストリで追加検証します。詳細は [LLM プロトコル](docs/LLM_PROTOCOL.md)を参照してください。
+Forge に適用できるのは `prompt` と `negative_prompt` だけです。モデル ID、LoRA 重み、サンプラー、スケジューラー、値範囲は現在の Neo レジストリで追加検証します。詳細は [LLM プロトコル](LLM_PROTOCOL.md)を参照してください。
 
 ## アーキテクチャ
 
@@ -208,7 +210,7 @@ Forge Neo UI
   └── SQLite キャッシュ
 ```
 
-主なディレクトリは `scripts/`、`ai_wdywfm/application/`、`domain/`、`infrastructure/`、`prompts/`、`ui/`、`schemas/`、`tests/`、`docs/` です。[アーキテクチャ文書](docs/ARCHITECTURE.md)も参照してください。
+主なディレクトリは `scripts/`、`ai_wdywfm/application/`、`domain/`、`infrastructure/`、`prompts/`、`ui/`、`schemas/`、`tests/`、`docs/` です。[アーキテクチャ文書](ARCHITECTURE.md)も参照してください。
 
 ## プライバシーとセキュリティ
 
@@ -255,10 +257,10 @@ Forge Neo UI
 
 ## ドキュメント
 
-- [アーキテクチャ](docs/ARCHITECTURE.md)
-- [LLM プロトコル](docs/LLM_PROTOCOL.md)
+- [アーキテクチャ](ARCHITECTURE.md)
+- [LLM プロトコル](LLM_PROTOCOL.md)
 - [ロードマップ](ROADMAP.md)
-- [プロンプト例](docs/promptexmaple.md)
+- [プロンプト例](promptexmaple.md)
 - `docs/LoRA json exmples/` — ローカルメタデータ fixtures
 - `docs/sd-civitai-browser-neo-main/` — Forge Neo CivitAI 参考資料
 

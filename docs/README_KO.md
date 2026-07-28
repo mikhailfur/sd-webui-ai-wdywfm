@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="banner.png" alt="WDYWFM — Forge Neo용 AI 프롬프트 도우미" width="100%">
+
 # ai-wdywfm
 
 ### AI LLM SD WebUI 도우미
@@ -14,7 +16,7 @@
 [![LM Studio](https://img.shields.io/badge/LLM-LM_Studio-0f766e?style=for-the-badge)](https://lmstudio.ai/)
 [![Status](https://img.shields.io/badge/status-v0.1_MVP-22c55e?style=for-the-badge)](ROADMAP.md)
 
-[English](README.md) · [Русский](README_RU.md) · **한국어** · [日本語](README_JA.md) · [简体中文](README_ZH_CN.md) · [繁體中文](README_ZH_TW.md)
+[English](../README.md) · [Русский](README_RU.md) · **한국어** · [日本語](README_JA.md) · [简体中文](README_ZH_CN.md) · [繁體中文](README_ZH_TW.md)
 
 [개요](#개요) · [작동 방식](#작동-방식) · [아키텍처](#아키텍처) · [로드맵](ROADMAP.md) · [프로젝트 후원](#프로젝트-후원)
 
@@ -174,7 +176,7 @@ CivitAI 지원은 내부 구현이며 **CivitAI Browser Neo는 런타임 의존�
 
 ## 구조화 응답 계약
 
-표준 스키마는 [prompt_suggestion.v1.json](schemas/prompt_suggestion.v1.json)입니다.
+표준 스키마는 [prompt_suggestion.v1.json](../schemas/prompt_suggestion.v1.json)입니다.
 
 ```json
 {
@@ -192,7 +194,7 @@ CivitAI 지원은 내부 구현이며 **CivitAI Browser Neo는 런타임 의존�
 }
 ```
 
-Forge에는 `prompt`와 `negative_prompt`만 적용합니다. 모델 ID, LoRA 가중치, 샘플러, 스케줄러, 값 범위는 실시간 Neo 레지스트리로 추가 검증합니다. 전체 내용은 [LLM 프로토콜](docs/LLM_PROTOCOL.md)을 참조하십시오.
+Forge에는 `prompt`와 `negative_prompt`만 적용합니다. 모델 ID, LoRA 가중치, 샘플러, 스케줄러, 값 범위는 실시간 Neo 레지스트리로 추가 검증합니다. 전체 내용은 [LLM 프로토콜](LLM_PROTOCOL.md)을 참조하십시오.
 
 ## 아키텍처
 
@@ -209,7 +211,7 @@ Forge Neo UI
   └── SQLite 캐시
 ```
 
-프로젝트의 주요 디렉터리는 `scripts/`, `ai_wdywfm/application/`, `domain/`, `infrastructure/`, `prompts/`, `ui/`, `schemas/`, `tests/`, `docs/`입니다. 전체 [아키텍처 문서](docs/ARCHITECTURE.md)를 참조하십시오.
+프로젝트의 주요 디렉터리는 `scripts/`, `ai_wdywfm/application/`, `domain/`, `infrastructure/`, `prompts/`, `ui/`, `schemas/`, `tests/`, `docs/`입니다. 전체 [아키텍처 문서](ARCHITECTURE.md)를 참조하십시오.
 
 ## 개인정보 보호 및 보안
 
@@ -256,10 +258,10 @@ Forge Neo UI
 
 ## 문서
 
-- [아키텍처](docs/ARCHITECTURE.md)
-- [LLM 프로토콜](docs/LLM_PROTOCOL.md)
+- [아키텍처](ARCHITECTURE.md)
+- [LLM 프로토콜](LLM_PROTOCOL.md)
 - [로드맵](ROADMAP.md)
-- [프롬프트 예시](docs/promptexmaple.md)
+- [프롬프트 예시](promptexmaple.md)
 - `docs/LoRA json exmples/` — 로컬 메타데이터 픽스처
 - `docs/sd-civitai-browser-neo-main/` — Forge Neo CivitAI 참조
 

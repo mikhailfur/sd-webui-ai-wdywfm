@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="banner.png" alt="WDYWFM — Forge Neo AI 提示词助手" width="100%">
+
 # ai-wdywfm
 
 ### AI LLM SD WebUI 助手
@@ -14,7 +16,7 @@
 [![LM Studio](https://img.shields.io/badge/LLM-LM_Studio-0f766e?style=for-the-badge)](https://lmstudio.ai/)
 [![Status](https://img.shields.io/badge/status-v0.1_MVP-22c55e?style=for-the-badge)](ROADMAP.md)
 
-[English](README.md) · [Русский](README_RU.md) · [한국어](README_KO.md) · [日本語](README_JA.md) · **简体中文** · [繁體中文](README_ZH_TW.md)
+[English](../README.md) · [Русский](README_RU.md) · [한국어](README_KO.md) · [日本語](README_JA.md) · **简体中文** · [繁體中文](README_ZH_TW.md)
 
 [概述](#概述) · [工作原理](#工作原理) · [架构](#架构) · [路线图](ROADMAP.md) · [支持项目](#支持项目)
 
@@ -173,7 +175,7 @@ CivitAI 支持内置于 `ai-wdywfm`，**运行时不依赖 CivitAI Browser Neo**
 
 ## 结构化响应契约
 
-规范模式为 [prompt_suggestion.v1.json](schemas/prompt_suggestion.v1.json)：
+规范模式为 [prompt_suggestion.v1.json](../schemas/prompt_suggestion.v1.json)：
 
 ```json
 {
@@ -191,7 +193,7 @@ CivitAI 支持内置于 `ai-wdywfm`，**运行时不依赖 CivitAI Browser Neo**
 }
 ```
 
-只有 `prompt` 和 `negative_prompt` 可应用到 Forge。模型 ID、LoRA 权重、采样器、调度器和值范围还会根据实时 Neo 注册表进行语义验证。详见 [LLM 协议](docs/LLM_PROTOCOL.md)。
+只有 `prompt` 和 `negative_prompt` 可应用到 Forge。模型 ID、LoRA 权重、采样器、调度器和值范围还会根据实时 Neo 注册表进行语义验证。详见 [LLM 协议](LLM_PROTOCOL.md)。
 
 ## 架构
 
@@ -208,7 +210,7 @@ Forge Neo UI
   └── SQLite 缓存
 ```
 
-主要目录包括 `scripts/`、`ai_wdywfm/application/`、`domain/`、`infrastructure/`、`prompts/`、`ui/`、`schemas/`、`tests/` 和 `docs/`。请阅读完整的[架构文档](docs/ARCHITECTURE.md)。
+主要目录包括 `scripts/`、`ai_wdywfm/application/`、`domain/`、`infrastructure/`、`prompts/`、`ui/`、`schemas/`、`tests/` 和 `docs/`。请阅读完整的[架构文档](ARCHITECTURE.md)。
 
 ## 隐私与安全
 
@@ -255,10 +257,10 @@ Forge Neo UI
 
 ## 文档
 
-- [架构](docs/ARCHITECTURE.md)
-- [LLM 协议](docs/LLM_PROTOCOL.md)
+- [架构](ARCHITECTURE.md)
+- [LLM 协议](LLM_PROTOCOL.md)
 - [路线图](ROADMAP.md)
-- [提示词示例](docs/promptexmaple.md)
+- [提示词示例](promptexmaple.md)
 - `docs/LoRA json exmples/` — 本地元数据样本
 - `docs/sd-civitai-browser-neo-main/` — Forge Neo CivitAI 参考
 
