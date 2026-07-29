@@ -25,7 +25,7 @@ Turn a plain-language idea—or an image plus editing instructions—into Stable
 > [!IMPORTANT]
 > The first executable MVP is available. It provides the Forge Neo UI, LM Studio and
 > OpenRouter structured requests, text/vision input, validation, and explicit prompt-only
-> apply. Metadata enrichment and advanced model retrieval remain roadmap work.
+> apply. CivitAI metadata enrichment is available; advanced model retrieval remains roadmap work.
 
 > [!NOTE]
 > **Verified status.** Confirmed working end to end on the latest **Stable Diffusion WebUI
@@ -194,19 +194,24 @@ No Forge core files are patched. Forge Classic, AUTOMATIC1111, reForge, and othe
 
 CivitAI support is implemented inside `ai-wdywfm`; **CivitAI Browser Neo is not a runtime dependency**.
 
-Metadata sources are resolved cache-first:
+Metadata is resolved field-by-field. Local identity and trigger sources are read first; remote enrichment is cache-first:
 
 1. `<model>.api_info.json`;
 2. `<model>.json`;
 3. `.safetensors` `__metadata__` header;
-4. the extension's SQLite cache;
-5. `GET /api/v1/model-versions/by-hash/{sha256}`;
-6. `GET /api/v1/model-versions/{versionId}`;
-7. `GET /api/v1/models/{modelId}` for full model-level descriptions and tags.
+4. a fresh snapshot in `data/ai-wdywfm/cache.sqlite3`;
+5. for a shortlisted cache miss, `GET /api/v1/model-versions/by-hash/{sha256}`;
+6. fallback `GET /api/v1/model-versions/{versionId}`;
+7. `GET /api/v1/models/{modelId}` for model-level descriptions and tags.
+
+Only `https://civitai.com/api/v1` and `https://civitai.red/api/v1` are accepted. Authentication is optional;
+`CIVITAI_API_TOKEN` has priority over `CIVITAI_TOKEN`. Retries are limited to rate limits, server failures,
+and transport failures. A cached 404 prevents repeated lookup loops, and an offline CivitAI request falls
+back to local or stale metadata without blocking prompt generation.
 
 Normalized metadata includes model identity, type, base-model family, hashes, CivitAI IDs, trigger-word groups, model/version descriptions, sample prompts, negative prompts, and field-level provenance.
 
-Large checkpoint files are hashed lazily. A full local inventory is maintained, but only a compact catalog and detailed cards for the most relevant compatible models are sent to the LLM within a configurable context budget.
+Large model files are hashed lazily in a bounded worker pool and only after entering the shortlist. A full local inventory is maintained, but only the eight most relevant detailed cards are sent to the LLM.
 
 ## LLM providers
 
@@ -330,8 +335,8 @@ Read the complete [Architecture document](docs/ARCHITECTURE.md).
 | OpenRouter model | Empty | Requires explicit selection. |
 | CivitAI enrichment | On | Fetch missing model metadata. |
 | CivitAI domain | `civitai.com` | `civitai.red` may be explicitly selected. |
-| Detailed model cards | `12` | Maximum full cards per request. |
-| Context budget | `12,000 tokens` | Soft model-context limit. |
+| CivitAI timeout | `15 seconds` | Per-attempt metadata network timeout. |
+| Detailed model cards | `8` | Maximum full LoRA cards per request. |
 | OpenRouter timeout | `60 seconds` | OpenRouter request timeout. |
 | LM Studio timeout | `180 seconds` | LM Studio request timeout (local generation is usually slower). |
 | Image maximum side | `1,536 px` | Vision input resize limit. |

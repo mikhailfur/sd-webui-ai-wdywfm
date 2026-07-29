@@ -91,6 +91,28 @@ def register_settings() -> None:
             {"minimum": 10, "maximum": 250, "step": 10},
             section=SECTION,
         ),
+        "wdywfm_civitai_enrichment": shared.OptionInfo(
+            True,
+            "Enrich shortlisted local models with cache-first CivitAI metadata",
+            section=SECTION,
+        ).info(
+            "Only shortlisted models are looked up. Failures never block prompt generation. "
+            "Set CIVITAI_API_TOKEN for authenticated requests."
+        ),
+        "wdywfm_civitai_domain": shared.OptionInfo(
+            "civitai.com",
+            "CivitAI API domain",
+            gr.Dropdown,
+            {"choices": ["civitai.com", "civitai.red"]},
+            section=SECTION,
+        ),
+        "wdywfm_civitai_timeout": shared.OptionInfo(
+            15,
+            "CivitAI metadata request timeout (seconds)",
+            gr.Slider,
+            {"minimum": 5, "maximum": 60, "step": 5},
+            section=SECTION,
+        ),
         "wdywfm_debug_logging": shared.OptionInfo(
             False,
             "Enable redacted debug logging",

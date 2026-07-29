@@ -23,7 +23,7 @@
 </div>
 
 > [!IMPORTANT]
-> 首個可執行的 MVP 已提供，包含 Forge Neo 介面、LM Studio/OpenRouter 結構化請求、文字與視覺輸入、驗證，以及僅對提示詞的明確套用。中繼資料強化與進階模型檢索仍屬路線圖工作。
+> 首個可執行的 MVP 已提供，包含 Forge Neo 介面、LM Studio/OpenRouter 結構化請求、文字與視覺輸入、驗證，以及僅對提示詞的明確套用。CivitAI 中繼資料強化已實作，進階模型檢索仍屬路線圖工作。
 
 > [!NOTE]
 > **驗證狀態。** 已在最新版 **Stable Diffusion WebUI Forge Neo** 完成端對端驗證。目前僅 **OpenRouter** 經實際使用驗證；LM Studio 依同一契約實作，但尚未完成端對端確認。
@@ -235,8 +235,8 @@ Forge Neo UI
 | OpenRouter model | 空白 | 需要明確選擇 |
 | CivitAI enrichment | 開啟 | 取得缺少的資料 |
 | CivitAI domain | `civitai.com` | 可選擇 `civitai.red` |
-| Detailed model cards | `12` | 每次請求上限 |
-| Context budget | `12,000 tokens` | 軟性上限 |
+| Detailed model cards | `8` | 每次請求的 LoRA 上限 |
+| CivitAI timeout | `15 秒` | 中繼資料請求逾時 |
 | LLM timeout | `120 seconds` | 請求逾時 |
 | Image maximum side | `1,536 px` | 視覺輸入尺寸限制 |
 | Cloud image input | 關閉 | OpenRouter 圖片額外同意 |

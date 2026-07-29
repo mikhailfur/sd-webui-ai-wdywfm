@@ -153,7 +153,7 @@ class MetadataProvider(Protocol):
 
 OpenRouter и LM Studio возвращают один и тот же `RawLlmResponse`; CivitAI и sidecar readers возвращают один `ModelMetadata`.
 
-## 5. Предлагаемая файловая структура
+## 5. Файловая структура
 
 ```text
 ai_wdywfm/
@@ -193,6 +193,12 @@ ai_wdywfm/
     ├── presenters.py
     └── settings.py
 ```
+
+Phase A реализована в `application/enrich_metadata.py`, `application/inventory_enrichment.py`,
+`infrastructure/civitai/{client,normalizer,sidecars}.py`, `infrastructure/hashing.py` и
+`infrastructure/storage/sqlite_cache.py`. Остальные имена в дереве выше фиксируют целевое разбиение
+последующих фаз; текущие provider adapters объединены в `providers/openai_compatible.py`, а Forge inventory
+— в `forge_neo/inventory.py`.
 
 ## 6. Model inventory и metadata pipeline
 
@@ -299,13 +305,12 @@ SQLite выбран вместо набора изменяемых JSON:
 - быстрый поиск и invalidation;
 - входит в стандартную библиотеку Python.
 
-Предлагаемые таблицы:
+Реализованные таблицы (schema migration выполняется при первом обращении к cache):
 
 - `local_models`;
 - `metadata_snapshots`;
 - `field_provenance`;
 - `fetch_state`;
-- `provider_model_cache`;
 - `schema_migrations`.
 
 DB размещается в Forge `data_path/ai-wdywfm/cache.sqlite3`. API keys и изображения в DB не сохраняются.

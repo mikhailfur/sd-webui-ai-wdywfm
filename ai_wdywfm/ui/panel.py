@@ -361,9 +361,14 @@ def _generate(
         f"Request `{request_id}` · preparing local model context…"
     )
     try:
+        civitai_domain = str(get_setting("wdywfm_civitai_domain", "civitai.com"))
         inventory = build_inventory(
             int(get_setting("wdywfm_inventory_limit", 80)),
             f"{request or ''} {current_prompt or ''}",
+            enrich_civitai=bool(get_setting("wdywfm_civitai_enrichment", True)),
+            civitai_base_url=f"https://{civitai_domain}/api/v1",
+            civitai_timeout=float(get_setting("wdywfm_civitai_timeout", 15)),
+            request_id=request_id,
         )
         constraints = inventory.get("constraints", {})
         metadata_cache = inventory.get("metadata_cache", {})
@@ -437,7 +442,7 @@ def _generate(
         summary_markdown(suggestion),
         warnings_markdown(suggestion),
         recommendations_html(suggestion),
-        model_note(suggestion),
+        model_note(suggestion, inventory.get("metadata_statuses", {})),
         f"Request `{request_id}` validated. Review it, then apply explicitly.",
         read_log_tail(),
     )
@@ -550,7 +555,10 @@ def _disclosure(provider: str) -> str:
         source = "Request text, compact local model names, and the optional image"
         destination = "your loopback LM Studio server"
     persistence = " The provider state is saved automatically; on Windows the key is protected with DPAPI."
-    return f"**Privacy:** {source} will be sent to {destination}. Absolute paths are excluded.{persistence}"
+    metadata = (
+        " When CivitAI enrichment is enabled, shortlisted model hashes/ids may be sent to the selected CivitAI domain."
+    )
+    return f"**Privacy:** {source} will be sent to {destination}. Absolute paths are excluded.{metadata}{persistence}"
 
 
 def _auto_save(provider: str, model: str, base_url: str, api_key: str) -> str:

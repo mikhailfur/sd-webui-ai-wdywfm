@@ -42,10 +42,17 @@ def recommendations_html(suggestion: PromptSuggestion) -> str:
     )
 
 
-def model_note(suggestion: PromptSuggestion) -> str:
+def model_note(
+    suggestion: PromptSuggestion, metadata_statuses: dict[str, str] | None = None,
+) -> str:
+    metadata_statuses = metadata_statuses or {}
     if suggestion.loras:
         names = html.escape(", ".join(lora.id for lora in suggestion.loras))
-        return f"Validated local LoRA: {names}"
+        states = " · ".join(
+            f"`{html.escape(lora.id)}` — metadata: **{html.escape(metadata_statuses.get(lora.id, 'local'))}**"
+            for lora in suggestion.loras
+        )
+        return f"Validated local LoRA: {names}  \n{states}"
     return "No LoRA selected · current checkpoint stays active"
 
 

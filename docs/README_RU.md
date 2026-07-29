@@ -25,7 +25,7 @@
 > [!IMPORTANT]
 > Первый исполняемый MVP готов. В нём есть интерфейс Forge Neo, structured-запросы
 > к LM Studio и OpenRouter, text/vision-ввод, валидация и явное применение только
-> промптов. Обогащение metadata и продвинутый retrieval остаются в roadmap.
+> промптов. CivitAI enrichment metadata реализован; продвинутый retrieval остаётся в roadmap.
 
 > [!NOTE]
 > **Статус проверки.** Расширение проверено и работает на последней версии
@@ -196,7 +196,7 @@ Core-файлы Forge не изменяются. Forge Classic, AUTOMATIC1111, r
 
 ## Интеграция с CivitAI с учётом моделей
 
-Поддержка CivitAI реализуется внутри `ai-wdywfm`; **CivitAI Browser Neo не является runtime dependency**.
+Поддержка CivitAI реализована внутри `ai-wdywfm`; **CivitAI Browser Neo не является runtime dependency**.
 
 Источники metadata обрабатываются с приоритетом cache-first:
 
@@ -334,8 +334,8 @@ sd-webui-ai-wdywfm/
 | OpenRouter model | Не выбрана | Требует явного выбора. |
 | CivitAI enrichment | Включено | Получение отсутствующих metadata моделей. |
 | CivitAI domain | `civitai.com` | Можно явно выбрать `civitai.red`. |
-| Detailed model cards | `12` | Максимум полных карточек на один запрос. |
-| Context budget | `12 000 tokens` | Мягкий лимит model context. |
+| Detailed model cards | `8` | Максимум полных карточек LoRA на один запрос. |
+| CivitAI timeout | `15 секунд` | Timeout одной попытки запроса metadata. |
 | LLM timeout | `120 seconds` | Timeout запроса к provider. |
 | Image maximum side | `1 536 px` | Лимит изменения размера vision input. |
 | Cloud image input | Выключено | Дополнительное согласие на изображение для OpenRouter. |

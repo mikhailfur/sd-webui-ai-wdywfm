@@ -93,53 +93,54 @@
   diagnostics tail. `ai_wdywfm/ui/presenters.py` рендерит markdown/HTML для summary/warnings/recommendations.
 
 ### Тесты
-`tests/` — 8 файлов: apply_prompts, diagnostics, gemma4, generation_repair, inventory, provider_client,
-provider_state, validation. Нет тестов на CivitAI/SQLite/сети поиска — потому что этого кода ещё нет (см.
-ниже).
+`tests/` — 9 файлов: apply_prompts, civitai_phase_a, diagnostics, gemma4, generation_repair, inventory,
+provider_client, provider_state, validation. Phase A покрыта fixture/contract/integration-тестами; тестов
+на web search и recommender пока нет, потому что Phase C/D ещё не реализованы.
 
 ---
 
 ## Часть 2. Расхождения между документацией и кодом на момент пересмотра
 
-`docs/ARCHITECTURE.md` и `docs/LLM_PROTOCOL.md` описывают CivitAI-клиент, SQLite cache, safetensors-header
-reader и sidecar `api_info.json`/`.json`/`.civitai.json` resolution как часть архитектуры. `README.md`
-("Model-aware CivitAI integration") прямо утверждает, что это реализовано внутри `ai_wdywfm`. **В коде этого
-нет**: нет `infrastructure/civitai/`, нет `infrastructure/storage/`, нет чтения `__metadata__` заголовка
-`.safetensors`, нет HTTP-клиента к `civitai.com`/`civitai.red`. Единственный источник метаданных LoRA сегодня
-— штатный Forge user-metadata `.json` (activation text/preferred weight).
+Расхождение закрыто реализацией **Phase A**. В коде появились `infrastructure/civitai/`,
+`infrastructure/storage/`, bounded safetensors-header reader, потоковый lazy SHA-256 и HTTP-клиент с
+allowlist для `civitai.com`/`civitai.red`. Forge user-metadata `.json`, CivitAI sidecar, safetensors metadata,
+SQLite snapshot и сетевой ответ теперь сводятся в один `ModelMetadata` с provenance по полям.
 
-Это не баг — это нереализованная фаза. Roadmap ниже явно выделяет её как **Phase A** и должна выполняться
-первой, потому что на неё опирается Phase B (умная передача метаданных) и Phase D (CivitAI recommender).
-После того как Phase A будет закрыта, `README.md`/`ARCHITECTURE.md` тоже нужно будет привести в соответствие
-(сейчас они пишут о CivitAI в настоящем времени).
+`README.md` и `docs/ARCHITECTURE.md` актуализированы по фактической реализации: сеть вызывается только во
+время явного Generate для shortlist, lookup выполняется cache-first, а CivitAI failure оставляет локальную
+генерацию рабочей. Следующие зависимости Phase A — Phase B (ленивая передача metadata) и Phase D
+(recommender) — теперь разблокированы.
+
+Проверка закрытия: `tests/test_civitai_phase_a.py` покрывает все шесть JSON-fixtures, SQLite migrations/cache,
+safetensors header, retry/allowlist/env-token, negative cache и streaming SHA-256.
 
 ---
 
 ## Часть 3. План оставшейся работы
 
-### Phase A — CivitAI enrichment (было v0.3.0, не начато)
+### Phase A — CivitAI enrichment (было v0.3.0, выполнено)
 
 Цель: получать полные metadata (описание, trigger words, sample prompts, base model) для локальных
 checkpoint/LoRA без стороннего расширения.
 
-- [ ] `infrastructure/civitai/client.py`: `GET /api/v1/model-versions/by-hash/{sha256}`, fallback
+- [x] `infrastructure/civitai/client.py`: `GET /api/v1/model-versions/by-hash/{sha256}`, fallback
       `by-version-id`, `GET /api/v1/models/{modelId}` для полного description/tags.
-- [ ] Configurable domain `civitai.com`/`civitai.red`, allowlist проверка URL как уже сделано для
+- [x] Configurable domain `civitai.com`/`civitai.red`, allowlist проверка URL как уже сделано для
       OpenRouter/LM Studio в `openai_compatible.py::_validated_url`.
-- [ ] Optional Bearer token, приоритет у env-переменной.
-- [ ] Timeout/retry только на `429`/`5xx`/transport errors, exponential backoff + `Retry-After`, negative
+- [x] Optional Bearer token, приоритет у env-переменной (`CIVITAI_API_TOKEN`, затем `CIVITAI_TOKEN`).
+- [x] Timeout/retry только на `429`/`5xx`/transport errors, exponential backoff + `Retry-After`, negative
       cache на `404`.
-- [ ] `infrastructure/civitai/sidecars.py`: чтение `X.api_info.json`, `X.json` (CivitAI-формат, отдельно от
+- [x] `infrastructure/civitai/sidecars.py`: чтение `X.api_info.json`, `X.json` (CivitAI-формат, отдельно от
       уже существующего Forge user-metadata), safetensors `__metadata__` header как последний fallback.
-- [ ] Нормализация в единый `ModelMetadata` с provenance по полю (identity/triggers/description/base_model),
+- [x] Нормализация в единый `ModelMetadata` с provenance по полю (identity/triggers/description/base_model),
       как описано в `docs/ARCHITECTURE.md` §6.4 — реализовать буквально то, что уже спроектировано там.
-- [ ] `infrastructure/storage/sqlite_cache.py`: таблицы `local_models`, `metadata_snapshots`,
+- [x] `infrastructure/storage/sqlite_cache.py`: таблицы `local_models`, `metadata_snapshots`,
       `field_provenance`, `fetch_state`, `schema_migrations`; путь `data/ai-wdywfm/cache.sqlite3`.
-- [ ] Lazy SHA-256 (поток блоками, cancel, ограниченный пул воркеров), считается только когда хэша нет
+- [x] Lazy SHA-256 (поток блоками, cooperative cancel, ограниченный пул воркеров), считается только когда хэша нет
       локально и модель попала в shortlist.
-- [ ] HTML → sanitized plain text для description/sample prompts.
-- [ ] Unit-тесты на все фикстуры из `docs/LoRA json exmples/`.
-- [ ] UI: индикатор "metadata: local / cached / stale / offline" на карточке LoRA.
+- [x] HTML → sanitized plain text для description/sample prompts.
+- [x] Unit-тесты на все фикстуры из `docs/LoRA json exmples/`.
+- [x] UI: индикатор "metadata: local / cached / stale / offline" для выбранных LoRA.
 
 Exit criteria: cache-first lookup; недоступность CivitAI не блокирует локальную генерацию; отсутствующая
 модель не вызывает бесконечные повторные запросы; сеть не трогается на импорте расширения.
@@ -313,11 +314,11 @@ query+current_prompt. Не готово:
 Условия (обновлено под факт):
 
 - Text и Vision flows стабильны на OpenRouter и LM Studio — **уже выполнено сегодня**, остаётся не сломать.
-- CivitAI enrichment полностью встроен (Phase A) — **не выполнено**.
+- CivitAI enrichment полностью встроен (Phase A) — **выполнено**.
 - Ленивая передача метаданных LoRA работает с fallback на модели без tool calling (Phase B) — **не выполнено**.
 - Нет core patches — **уже выполнено**.
 - Нет известных случаев изменения generation controls кроме prompts — **уже выполнено и покрыто тестом**.
-- Cache migrations протестированы (после Phase A).
+- Cache migrations и corruption recovery протестированы (Phase A) — **выполнено**.
 - Privacy disclosure и secret handling документированы — **частично**: OpenRouter/vision consent есть,
   web-search consent (Phase C) и CivitAI recommender consent (Phase D) ещё нет.
 - Логи достаточны для дебага реального инцидента без включения content-логирования (Phase E).

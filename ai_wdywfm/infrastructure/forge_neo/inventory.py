@@ -6,6 +6,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from ai_wdywfm.application.inventory_enrichment import enrich_inventory
+
 
 MAX_ACTIVATION_WORDS = 24
 MAX_ACTIVATION_WORD_LENGTH = 120
@@ -26,7 +28,11 @@ def compatibility() -> tuple[bool, str]:
         return False, f"Incompatible runtime: {type(exc).__name__}"
 
 
-def build_inventory(maximum_items: int = 80, query: str = "") -> dict[str, Any]:
+def build_inventory(
+    maximum_items: int = 80, query: str = "", *, enrich_civitai: bool = False,
+    civitai_base_url: str = "https://civitai.com/api/v1", civitai_token: str = "",
+    civitai_timeout: float = 15, request_id: str = "inventory", cache_path=None,
+) -> dict[str, Any]:
     from modules import sd_models, shared, shared_items
 
     checkpoint_ids: list[str] = []
@@ -83,7 +89,7 @@ def build_inventory(maximum_items: int = 80, query: str = "") -> dict[str, Any]:
     ranked_details = _rank_lora_cards(lora_details, query)
     samplers = [str(item.name) for item in shared_items.list_samplers()]
     schedulers = [str(item) for item in shared_items.list_schedulers()]
-    return {
+    inventory = {
         "current_checkpoint": current_id,
         "context": {
             "summary": {
@@ -109,6 +115,13 @@ def build_inventory(maximum_items: int = 80, query: str = "") -> dict[str, Any]:
         },
     }
 
+
+    return enrich_inventory(
+        inventory, query=query, maximum_items=maximum_items,
+        enabled=enrich_civitai, base_url=civitai_base_url,
+        token=civitai_token, timeout=civitai_timeout,
+        request_id=request_id, cache_path=cache_path,
+    )
 
 def unload_sd_checkpoint() -> bool:
     """Best-effort GPU VRAM release for the currently loaded SD/SDXL checkpoint.

@@ -23,7 +23,7 @@
 </div>
 
 > [!IMPORTANT]
-> 最初の実行可能な MVP を利用できます。Forge Neo UI、LM Studio/OpenRouter の構造化リクエスト、テキスト・画像入力、検証、プロンプトだけを明示的に適用する機能を備えています。メタデータ拡充と高度なモデル検索は今後のロードマップ項目です。
+> 最初の実行可能な MVP を利用できます。Forge Neo UI、LM Studio/OpenRouter の構造化リクエスト、テキスト・画像入力、検証、プロンプトだけを明示的に適用する機能を備えています。CivitAI メタデータ拡充は実装済みで、高度なモデル検索は今後のロードマップ項目です。
 
 > [!NOTE]
 > **検証状況。** 最新の **Stable Diffusion WebUI Forge Neo** で一連の動作を確認済みです。実利用で検証済みのプロバイダーは現在 **OpenRouter** のみです。LM Studio も同じ契約で実装されていますが、エンドツーエンド検証は未完了です。
@@ -235,8 +235,8 @@ Forge Neo UI
 | OpenRouter model | 空 | 明示選択が必要 |
 | CivitAI enrichment | On | 不足情報を取得 |
 | CivitAI domain | `civitai.com` | `civitai.red` も選択可能 |
-| Detailed model cards | `12` | 1 リクエストの上限 |
-| Context budget | `12,000 tokens` | ソフト上限 |
+| Detailed model cards | `8` | 1 リクエストの LoRA 上限 |
+| CivitAI timeout | `15 秒` | メタデータリクエストの制限時間 |
 | LLM timeout | `120 seconds` | リクエスト制限時間 |
 | Image maximum side | `1,536 px` | 画像入力サイズ上限 |
 | Cloud image input | Off | OpenRouter 画像への追加同意 |

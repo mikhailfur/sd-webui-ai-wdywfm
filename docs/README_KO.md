@@ -23,7 +23,7 @@
 </div>
 
 > [!IMPORTANT]
-> 최초 실행 가능한 MVP가 제공됩니다. Forge Neo UI, LM Studio/OpenRouter 구조화 요청, 텍스트·비전 입력, 검증, 명시적인 프롬프트 전용 적용을 지원합니다. 메타데이터 보강과 고급 모델 검색은 로드맵에 남아 있습니다.
+> 최초 실행 가능한 MVP가 제공됩니다. Forge Neo UI, LM Studio/OpenRouter 구조화 요청, 텍스트·비전 입력, 검증, 명시적인 프롬프트 전용 적용을 지원합니다. CivitAI 메타데이터 보강은 구현되었으며 고급 모델 검색은 로드맵에 남아 있습니다.
 
 > [!NOTE]
 > **검증 상태.** 최신 **Stable Diffusion WebUI Forge Neo**에서 전체 흐름의 작동을 확인했습니다. 현재 실제 사용으로 검증된 제공자는 **OpenRouter**뿐입니다. LM Studio도 같은 계약으로 구현됐지만 아직 전체 흐름은 검증되지 않았습니다.
@@ -236,8 +236,8 @@ Forge Neo UI
 | OpenRouter model | 비어 있음 | 명시적 선택 필요 |
 | CivitAI enrichment | 켬 | 누락 메타데이터 가져오기 |
 | CivitAI domain | `civitai.com` | `civitai.red` 선택 가능 |
-| Detailed model cards | `12` | 요청당 최대 카드 |
-| Context budget | `12,000 tokens` | 소프트 제한 |
+| Detailed model cards | `8` | 요청당 최대 LoRA 카드 |
+| CivitAI timeout | `15초` | 메타데이터 요청 제한 시간 |
 | LLM timeout | `120 seconds` | 요청 제한 시간 |
 | Image maximum side | `1,536 px` | 비전 입력 크기 제한 |
 | Cloud image input | 끔 | OpenRouter 이미지 추가 동의 |
