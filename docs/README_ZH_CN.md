@@ -46,7 +46,7 @@
 
 每次提供商操作都有请求 ID，并写入经过清理的轮转日志 `logs/ai-wdywfm.log`。可在面板的 `Diagnostics · sanitized log` 中查看近期事件。API 密钥、提示词正文和图片绝不会写入该日志。
 
-Gemma 4 系列 OpenRouter 模型使用快速结构化输出配置，不包含越狱、定制轮次标记或推理请求。输出上限为 3072 token，每次 Generate 最多发起一次补全；结构化 JSON 响应启用 Response Healing。
+Gemma 4 系列 OpenRouter 模型使用不含越狱、定制轮次标记或推理请求的快速结构化输出配置。输出限制为 2048 token，并启用 Response Healing。
 
 Forge 会缓存 safetensors 头。LoRA sidecar JSON 也按文件大小和修改时间在内存中缓存；只发送最相关的 8 张详细 LoRA 卡，同时保留完整的紧凑 ID 白名单用于验证。
 

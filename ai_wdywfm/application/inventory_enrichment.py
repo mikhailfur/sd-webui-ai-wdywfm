@@ -7,11 +7,12 @@ from ai_wdywfm.application.enrich_metadata import MetadataEnricher
 from ai_wdywfm.domain.models import ModelMetadata
 from ai_wdywfm.infrastructure.civitai.client import CivitAIClient
 from ai_wdywfm.infrastructure.civitai.sidecars import resolve_local_metadata
-from ai_wdywfm.infrastructure.diagnostics import get_logger
+from ai_wdywfm.infrastructure.diagnostics import category_logger
 from ai_wdywfm.infrastructure.storage.sqlite_cache import SQLiteMetadataCache
 
 
 MAX_DETAILED = 8
+MAX_SHORT_DESCRIPTION = 140
 
 
 def enrich_inventory(
@@ -35,7 +36,9 @@ def enrich_inventory(
                 path,
             )
     except Exception as exc:
-        get_logger().debug("request=%s metadata.lora_scan_failed kind=%s", request_id, type(exc).__name__)
+        category_logger("inventory").debug(
+            "request=%s metadata.lora_scan_failed kind=%s", request_id, type(exc).__name__
+        )
 
     try:
         from modules import sd_models
@@ -53,7 +56,9 @@ def enrich_inventory(
                 path,
             )
     except Exception as exc:
-        get_logger().debug("request=%s metadata.checkpoint_scan_failed kind=%s", request_id, type(exc).__name__)
+        category_logger("inventory").debug(
+            "request=%s metadata.checkpoint_scan_failed kind=%s", request_id, type(exc).__name__
+        )
 
     ranked_ids = _rank_ids(loras, query)[:min(MAX_DETAILED, maximum_items)]
     selected = [loras[item_id] for item_id in ranked_ids]
@@ -82,7 +87,7 @@ def enrich_inventory(
                 elif local_id in checkpoints:
                     checkpoints[local_id] = (metadata, checkpoints[local_id][1])
         except Exception as exc:
-            get_logger().warning(
+            category_logger("inventory").warning(
                 "request=%s metadata.pipeline_unavailable kind=%s", request_id, type(exc).__name__,
             )
 
@@ -97,17 +102,54 @@ def enrich_inventory(
         statuses[local_id] = metadata.status
 
     context = inventory.setdefault("context", {})
-    context["detailed_candidates"] = [
+    detailed_candidates = [
         _card(loras[item_id][0]) for item_id in ranked_ids if item_id in loras
     ]
+    context["detailed_candidates"] = detailed_candidates
     context["checkpoint_details"] = (
         [_card(checkpoints[current_id][0])] if current_id in checkpoints else []
     )
+    summary = context.setdefault("summary", {})
+    existing_loras = summary.get("loras")
+    existing_loras = existing_loras if isinstance(existing_loras, list) else []
+    compact_cards = []
+    for item in existing_loras[:maximum_items]:
+        if not isinstance(item, dict):
+            continue
+        local_id = str(item.get("id", ""))
+        metadata = loras.get(local_id, (None, ""))[0]
+        alias = metadata.display_name if metadata is not None else str(item.get("alias", local_id))
+        compact_cards.append({
+            "id": local_id,
+            "alias": alias,
+            "short_description": _short_description(metadata, item),
+        })
+    summary["loras"] = compact_cards
+    # Private application-side data. generate() never serializes this mapping
+    # into the first request; it is exposed only through get_lora_details.
+    inventory["lora_details"] = {
+        local_id: _card(metadata) for local_id, (metadata, _) in loras.items()
+    }
+    inventory["lora_fallback_ids"] = [
+        card["id"] for card in detailed_candidates if isinstance(card.get("id"), str)
+    ]
     inventory["metadata_statuses"] = statuses
     cache_metrics = inventory.setdefault("metadata_cache", {})
     cache_metrics["sqlite_hits"] = sqlite_hits
     cache_metrics["sqlite_misses"] = sqlite_misses
     return inventory
+
+
+def _short_description(metadata: ModelMetadata | None, fallback: dict[str, Any]) -> str:
+    description = metadata.description_text if metadata is not None else None
+    if isinstance(description, str) and description.strip():
+        first_line = next((line.strip() for line in description.splitlines() if line.strip()), "")
+        return first_line[:MAX_SHORT_DESCRIPTION].rstrip()
+    words = metadata.trigger_words if metadata is not None else ()
+    if not words:
+        raw = fallback.get("activation_words")
+        words = tuple(str(item) for item in raw) if isinstance(raw, list) else ()
+    return ", ".join(words)[:MAX_SHORT_DESCRIPTION].rstrip(" ,")
 
 
 def _rank_ids(items: dict[str, tuple[ModelMetadata, str]], query: str) -> list[str]:

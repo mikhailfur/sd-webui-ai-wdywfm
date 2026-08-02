@@ -71,20 +71,23 @@ class ValidationTests(unittest.TestCase):
         self.assertIsNone(result.recommendations.denoising_strength)
         self.assertGreaterEqual(len(result.warnings), 2)
 
-    def test_rejects_hallucinated_lora_activation_word(self):
+    def test_repairs_hallucinated_lora_activation_word(self):
         payload = valid_payload()
-        payload["models"]["loras"][0]["trigger_words"] = ["invented trigger"]
+        payload["models"]["loras"][0]["trigger_words"] = ["local"]
         suggestion = parse_suggestion(payload)
-        with self.assertRaisesRegex(ValidationError, "not present in local metadata"):
-            semantic_validate(
-                suggestion,
-                mode="txt2img",
-                checkpoints=set(),
-                lora_aliases={"local": "hero-style"},
-                samplers=set(),
-                schedulers=set(),
-                lora_triggers={"local": ("hero",)},
-            )
+        result = semantic_validate(
+            suggestion,
+            mode="txt2img",
+            checkpoints=set(),
+            lora_aliases={"local": "hero-style"},
+            samplers=set(),
+            schedulers=set(),
+            lora_triggers={"local": ("hero",)},
+        )
+        self.assertIn("hero", result.prompt)
+        self.assertNotIn(", local,", result.prompt)
+        self.assertIn("<lora:hero-style:0.8>", result.prompt)
+        self.assertTrue(any("unverified activation words" in item for item in result.warnings))
 
     def test_uses_first_local_activation_word_when_model_omits_it(self):
         payload = valid_payload()

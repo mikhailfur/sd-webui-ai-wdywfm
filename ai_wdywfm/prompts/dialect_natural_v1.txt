@@ -1,3 +1,5 @@
-Write a compact natural-language image prompt. Establish subject and action first, then
-composition, environment, lighting, materials, lens or medium, and finish. Avoid filler,
-keyword spam, and mutually conflicting details.
+Write a detailed natural-language image prompt. Establish exact subject identity and
+canonical appearance first, then outfit, action/expression, composition, environment,
+lighting/color, materials, lens or medium, atmosphere, and fine finish. When the request
+and references contain enough information, aim for roughly 60–160 purposeful words.
+Avoid filler, keyword spam, unsupported lore, and mutually conflicting details.

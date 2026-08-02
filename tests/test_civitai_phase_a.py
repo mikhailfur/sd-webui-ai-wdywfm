@@ -251,6 +251,11 @@ class ForgeInventoryIntegrationTests(unittest.TestCase):
             self.assertEqual(card["id"], "hero")
             self.assertEqual(card["description"], "Local description")
             self.assertEqual(card["metadata_status"], "local")
+            compact = inventory["context"]["summary"]["loras"][0]
+            self.assertEqual(
+                set(compact), {"id", "alias", "short_description"},
+            )
+            self.assertEqual(compact["short_description"], "Local description")
             self.assertEqual(inventory["lora_triggers"]["hero"], ("hero trigger",))
             self.assertEqual(inventory["lora_preferred_weights"]["hero"], 0.8)
 

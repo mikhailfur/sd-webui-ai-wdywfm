@@ -46,7 +46,7 @@ WebUI를 다시 불러오면 제공자, URL, 모델, OpenRouter 키가 자동 �
 
 모든 제공자 작업에는 요청 ID가 있으며 정제된 순환 로그 `logs/ai-wdywfm.log`에 기록됩니다. 패널의 `Diagnostics · sanitized log`에서 최근 이벤트를 확인할 수 있습니다. API 키, 프롬프트, 이미지는 기록하지 않습니다.
 
-Gemma 4 계열 OpenRouter 모델은 탈옥, 사용자 지정 턴 마커, 추론 요청이 없는 빠른 구조화 출력 프로필을 사용합니다. 출력은 3072토큰, Generate당 완성 요청은 한 번으로 제한되며 구조화 JSON에 Response Healing을 사용합니다.
+Gemma 4 계열 OpenRouter 모델은 탈옥, 사용자 지정 턴 마커, 추론 요청이 없는 빠른 구조화 출력 프로필을 사용합니다. 출력은 2048토큰으로 제한되며 Response Healing을 사용합니다.
 
 Forge는 safetensors 헤더를 캐시합니다. LoRA 사이드카 JSON도 파일 크기/수정 시간 기준으로 메모리 캐시되며, 관련성 높은 상세 카드 8개만 전송하고 전체 압축 ID 허용 목록은 검증용으로 유지합니다.
 

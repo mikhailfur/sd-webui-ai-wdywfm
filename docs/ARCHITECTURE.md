@@ -320,13 +320,13 @@ DB размещается в Forge `data_path/ai-wdywfm/cache.sqlite3`. API keys
 Отправка полного описания каждой установленной модели не масштабируется. Pipeline:
 
 1. Собрать полный локальный inventory.
-2. Определить текущий checkpoint и LoRA, уже присутствующие в current prompt.
-3. Отфильтровать явно несовместимые base-model families.
-4. Выполнить lexical ranking по name, trigger words, tags и sanitized description.
-5. Всегда включить текущий checkpoint и явно используемые LoRA.
-6. Добавить top-N кандидатов с полными карточками.
-7. Остальные передать компактно: alias, kind, base model, основные triggers.
-8. Урезать context детерминированно до budget, не разрезая JSON object.
+2. Сформировать compact-каталог LoRA только из `id`, `alias`, `short_description` (≤140 символов).
+3. Не включать activation words, weight, base model и полное описание в первый LLM request.
+4. Разрешить модели запросить детали релевантных ids через `get_lora_details`.
+5. Проверить каждый tool id по локальному allowlist и ограничить loop двумя раундами/восемью ids.
+6. Для provider/model без tools детерминированно вернуть прежний lexical top-8 fallback.
+7. Всегда оставить полный allowlist локально для semantic validation.
+8. Урезать compact context детерминированно до budget, не разрезая JSON object.
 
 Для image-only запроса возможны две стратегии:
 
@@ -347,6 +347,8 @@ UI click
   → resize/strip image copy if present
   → build provider-neutral request
   → provider adapter
+  → optional bounded get_lora_details round-trip
+  → optional bounded character web_search round-trip
   → parse JSON
   → JSON Schema validation
   → semantic validation against Forge inventory
@@ -363,6 +365,8 @@ UI click
 
 - `/models`;
 - `/chat/completions`;
+- bounded tool loop с общим hard deadline;
+- allowlisted character search backend для Danbooru/Rule34/e621/Fandom;
 - text/image content parts;
 - timeout, cancellation и error mapping;
 - извлечение `choices[0].message.content`;
@@ -375,12 +379,13 @@ OpenRouter adapter добавляет:
 - capability filtering;
 - `provider.require_parameters=true`, когда требуется strict schema support.
 
-Исключение Gemma 4: fast structured path не запрашивает reasoning, не применяет
-model-specific jailbreak/turn markers, ограничивает output 3072 токенами (запас
+Исключение Gemma 4: fast structured path не применяет model-specific
+jailbreak/turn markers или reasoning и ограничивает output 2048 токенами (запас
 под полную schema: prompt + negative_prompt + models + recommendations +
 summary + warnings — 1024 приводило к `finish_reason=length` и отбраковке
 усечённого JSON локальной validation) и сразу использует compatibility routing
 без автоматического повторного completion.
+Так как Gemma 4 fast profile не использует tools, он получает статический bounded top-8 fallback.
 
 LM Studio adapter добавляет:
 
@@ -388,6 +393,7 @@ LM Studio adapter добавляет:
 - необязательный token;
 - диагностику доступности server/model;
 - понятный fallback, если локальная model не поддерживает vision или schema.
+- compatibility fallback к static LoRA shortlist, если tools и structured output несовместимы.
 
 Fallback Structured Output:
 
@@ -489,6 +495,10 @@ CivitAI failure — warning, а не failure всей операции. LLM fail
 - input/output token usage, если provider вернул;
 - schema/template version;
 - error category.
+- tool rounds/accepted/rejected ids без metadata content;
+- search query hash/length/source/result count; query/snippets only at DEBUG;
+- redacted envelope summary с ids, но без prompt;
+- validation reason codes по каждому изменённому/отклонённому полю.
 
 По умолчанию не логируются:
 
@@ -498,6 +508,10 @@ CivitAI failure — warning, а не failure всей операции. LLM fail
 - API keys;
 - абсолютные пути;
 - полный provider response.
+
+Лог имеет категории `provider.http`, `inventory`, `validation`, `ui`, `civitai`, `tools` с независимыми
+уровнями. По умолчанию файл остаётся человекочитаемым key=value; опционально включается JSONL. Diagnostics
+UI фильтрует хвост по точному `request_id` и уровню.
 
 ## 15. Тестовая стратегия
 
@@ -546,6 +560,9 @@ must not change: checkpoint, CFG, width, height, sampler, scheduler, steps,
 | SQLite cache | Transactions, concurrency, indexing |
 | Lazy SHA-256 | Не блокировать startup на больших checkpoint |
 | Bounded two-tier model context | Полезность без переполнения context window |
+| Lazy LoRA tool + static fallback | Модель сама запрашивает детали без потери совместимости |
+| Opt-in character search | Канонические внешность и booru tags без автоматической отправки запроса |
+| Read-only CivitAI recommender | Поиск новых LoRA изолирован от Generate и не устанавливает модели |
 | Strict schema + semantic validation | LLM output недоверенный |
 | Read-only recommendations | Явное требование продукта и защита пользователя |
 | No core patches | Обновляемость Forge Neo |

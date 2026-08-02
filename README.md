@@ -62,15 +62,16 @@ Turn a plain-language idea—or an image plus editing instructions—into Stable
 
 Provider choice, URL, model, and OpenRouter key are restored automatically after a
 WebUI reload. On Windows, the saved key is encrypted for the current user with DPAPI.
-Timeout, image size, and context limits are available under `Settings → AI WDYWFM`.
+Provider, LM Studio URL, provider timeouts, and thinking budget are available under
+`Settings → AI WDYWFM`. All other behavior uses built-in defaults.
 
 Every provider operation has a request id and is written to the rotating sanitized log
 at `logs/ai-wdywfm.log`. Open `Diagnostics · sanitized log` in the panel to inspect or
 copy recent events. API keys, prompt text, and images are never written to this log.
 
 OpenRouter models in the Gemma 4 family use a fast structured-output profile with no
-jailbreak, custom turn markers, or requested reasoning. Output is capped at 3072 tokens
-and each Generate action performs at most one completion. OpenRouter Response
+jailbreak, custom turn markers, or requested reasoning because reasoning repeatedly
+caused slow, truncated schema responses. Output is capped at 2048 tokens. OpenRouter Response
 Healing is enabled for structured JSON responses.
 
 Forge caches safetensors headers. LoRA sidecar JSON is additionally cached in memory and
@@ -211,7 +212,15 @@ back to local or stale metadata without blocking prompt generation.
 
 Normalized metadata includes model identity, type, base-model family, hashes, CivitAI IDs, trigger-word groups, model/version descriptions, sample prompts, negative prompts, and field-level provenance.
 
-Large model files are hashed lazily in a bounded worker pool and only after entering the shortlist. A full local inventory is maintained, but only the eight most relevant detailed cards are sent to the LLM.
+Large model files are hashed lazily in a bounded worker pool and only after entering the shortlist. The
+first LLM request contains compact LoRA cards (`id`, `alias`, and a description of at most 140 characters).
+Compatible models can request up to eight full cards through the bounded `get_lora_details` tool; models
+without tool calling receive the previous static top-eight fallback.
+
+The separate **LoRA recommender · CivitAI** accordion searches `civitai.com` or `civitai.red` with pagination,
+base-model and NSFW filters. It can optionally use the selected LLM for re-ranking. Results are read-only
+names, creator/base-model metadata, previews, model/version ids, and links—nothing is downloaded, installed,
+or inserted into the prompt.
 
 ## LLM providers
 
@@ -220,6 +229,7 @@ Large model files are hashed lazily in a bounded worker pool and only after ente
 - Default base URL: `http://127.0.0.1:1234/v1`.
 - OpenAI-compatible `/models` and `/chat/completions` endpoints.
 - Structured Output using the same JSON Schema contract.
+- Configurable token thinking budget via `reasoning_tokens` (LM Studio 0.4.8+).
 - Vision workflow when the selected local model supports image input.
 - Can operate entirely locally with cached CivitAI metadata.
 
@@ -228,10 +238,27 @@ Large model files are hashed lazily in a bounded worker pool and only after ente
 - Endpoint: `https://openrouter.ai/api/v1/chat/completions`.
 - Text and multimodal models.
 - Strict Structured Outputs on compatible models.
-- Provider/model capability filtering before a request.
+- Configurable token thinking budget via `reasoning.max_tokens`.
+- Requires endpoint support for every requested parameter and routes fallbacks by throughput.
 - `OPENROUTER_API_KEY` environment variable is the preferred secret source.
 
+Provider `finish_reason=error` and truncated `finish_reason=length` responses are surfaced
+directly instead of being misreported as malformed prompt JSON. Cancel stops the extension's
+wait immediately; an upstream provider may still finish an HTTP request already in flight.
+
 Both adapters produce the same provider-neutral domain object. Invalid or incomplete responses are never applied.
+
+### Character-aware web search
+
+Phase C adds an opt-in `web_search` tool shared by LM Studio and OpenRouter. It searches character-category
+tags and repeated visual traits on Danbooru/e621, supplemental Rule34 tags, and canonical plain-text
+summaries from an allowlisted Fandom wiki. The model uses this context to produce more accurate, detailed
+character prompts while ignoring artist/rating/meta tags and unrelated or transient post attributes.
+
+Web search is available in the panel but remains off for each Generate until the user explicitly enables
+its consent checkbox. Search content is bounded, sanitized, treated as untrusted data, never stored in the
+metadata cache, and shares the LLM hard deadline. Models without tool calling receive a single backend
+prefetch compatibility context.
 
 ## Structured response contract
 
@@ -320,28 +347,27 @@ Read the complete [Architecture document](docs/ARCHITECTURE.md).
 - Absolute local paths are never sent to a provider.
 - CivitAI descriptions and model metadata are treated as untrusted data, not instructions.
 - Cloud image upload requires explicit consent.
+- Character web search requires explicit consent for each Generate.
 - A provider disclosure shows whether text, image, and model metadata will be sent.
 - Reference images are verified, resized, stripped of metadata, and re-encoded.
 - Unknown checkpoint, LoRA, embedding, sampler, or scheduler names are rejected.
 - The extension never starts generation, downloads a model, or executes LLM-produced text.
 - Prompt content, images, secrets, and full provider responses are omitted from default logs.
+- Diagnostics have independent subsystem verbosity, stable error categories, request/level filters, and an
+  optional JSONL file format.
 
 ## MVP configuration
 
 | Setting | Default | Purpose |
 |---|---:|---|
-| Provider | `LM Studio` | Local-first safe default. |
+| Default LLM provider | `LM Studio` | Local-first safe default. |
 | LM Studio base URL | `http://127.0.0.1:1234/v1` | OpenAI-compatible local server. |
-| OpenRouter model | Empty | Requires explicit selection. |
-| CivitAI enrichment | On | Fetch missing model metadata. |
-| CivitAI domain | `civitai.com` | `civitai.red` may be explicitly selected. |
-| CivitAI timeout | `15 seconds` | Per-attempt metadata network timeout. |
-| Detailed model cards | `8` | Maximum full LoRA cards per request. |
 | OpenRouter timeout | `60 seconds` | OpenRouter request timeout. |
 | LM Studio timeout | `180 seconds` | LM Studio request timeout (local generation is usually slower). |
-| Image maximum side | `1,536 px` | Vision input resize limit. |
-| Cloud image input | Off | Additional OpenRouter image consent. |
-| Debug logging | Off | Content and secrets remain excluded. |
+| Thinking budget | `2,048 tokens` | Both providers; `0` uses the model/provider default. |
+
+These are the only exposed extension settings. All metadata, search, image, auto-unload,
+recommender, and diagnostics options continue to use their built-in defaults.
 
 ## MVP acceptance criteria
 

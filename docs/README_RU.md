@@ -66,15 +66,16 @@
 
 Выбранный провайдер, URL, модель и ключ OpenRouter автоматически восстанавливаются
 после перезапуска WebUI. В Windows ключ шифруется DPAPI для текущего пользователя.
-Timeout, размер изображения и лимит контекста настраиваются в `Settings → AI WDYWFM`.
+В `Settings → AI WDYWFM` настраиваются только провайдер, URL LM Studio, два timeout
+и thinking budget. Остальные параметры используют встроенные значения.
 
 Каждая операция провайдера получает request-id и записывается в rotating-лог
 `logs/ai-wdywfm.log`. Последние события можно посмотреть и скопировать в accordion
 `Diagnostics · sanitized log`. API-ключи, текст промпта и изображения в лог не попадают.
 
 Для моделей семейства Gemma 4 в OpenRouter применяется быстрый structured-output профиль
-без jailbreak, пользовательских turn markers и запрошенного reasoning. Output ограничен
-3072 токенами, а одно нажатие Generate выполняет не более одного completion. OpenRouter
+без jailbreak, пользовательских turn markers и запрошенного reasoning: reasoning приводил
+к медленным и усечённым schema-ответам. Output ограничен 2048 токенами. OpenRouter
 Response Healing включён для structured JSON.
 
 Заголовки safetensors кэширует Forge. Sidecar JSON для LoRA дополнительно кэшируются в
@@ -329,17 +330,13 @@ sd-webui-ai-wdywfm/
 
 | Настройка | По умолчанию | Назначение |
 |---|---:|---|
-| Provider | `LM Studio` | Безопасный локальный default. |
+| Default LLM provider | `LM Studio` | Безопасный локальный default. |
 | LM Studio base URL | `http://127.0.0.1:1234/v1` | Локальный OpenAI-совместимый сервер. |
-| OpenRouter model | Не выбрана | Требует явного выбора. |
-| CivitAI enrichment | Включено | Получение отсутствующих metadata моделей. |
-| CivitAI domain | `civitai.com` | Можно явно выбрать `civitai.red`. |
-| Detailed model cards | `8` | Максимум полных карточек LoRA на один запрос. |
-| CivitAI timeout | `15 секунд` | Timeout одной попытки запроса metadata. |
-| LLM timeout | `120 seconds` | Timeout запроса к provider. |
-| Image maximum side | `1 536 px` | Лимит изменения размера vision input. |
-| Cloud image input | Выключено | Дополнительное согласие на изображение для OpenRouter. |
-| Debug logging | Выключено | Содержимое и секреты остаются исключёнными. |
+| OpenRouter timeout | `60 секунд` | Timeout облачного запроса. |
+| LM Studio timeout | `180 секунд` | Timeout локального запроса. |
+| Thinking budget | `2 048 токенов` | Оба провайдера; `0` оставляет default модели/provider. |
+
+Это все доступные настройки расширения. Остальные функции используют встроенные defaults.
 
 ## Критерии приёмки MVP
 

@@ -8,7 +8,7 @@ GEMMA4_MODEL = re.compile(r"(?:^|/)gemma[-_. ]?4(?:[-_.:]|$)", re.IGNORECASE)
 # recommendations + summary + warnings): real completions were hitting
 # finish_reason=length around 1024 completion_tokens, truncating the JSON
 # before summary/warnings and failing local validation.
-GEMMA4_MAX_TOKENS = 3072
+GEMMA4_MAX_TOKENS = 2048
 
 
 def is_gemma4_model(model: str) -> bool:

@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import math
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -10,7 +11,9 @@ from ai_wdywfm.domain.errors import ValidationError
 from ai_wdywfm.domain.models import PromptSuggestion
 from ai_wdywfm.domain.validation import parse_suggestion, semantic_validate
 from ai_wdywfm.infrastructure.images import encode_reference_image
+from ai_wdywfm.infrastructure.diagnostics import category_logger
 from ai_wdywfm.infrastructure.providers.openai_compatible import OpenAICompatibleClient
+from ai_wdywfm.infrastructure.search import CharacterSearchService
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -32,9 +35,14 @@ def generate(
     cloud_image_consent: bool,
     inventory: dict[str, Any],
     timeout: float,
+    thinking_budget: int = 0,
     image_max_side: int,
     request_id: str,
+    cancel_event: threading.Event | None = None,
     lmstudio_ttl: int | None = None,
+    web_search_enabled: bool = False,
+    web_search_sources: list[str] | tuple[str, ...] = (),
+    web_search_timeout: float = 10,
 ) -> PromptSuggestion:
     if not user_text or not user_text.strip():
         raise ValidationError("Describe the image or edit you want.")
@@ -47,7 +55,7 @@ def generate(
     system = (ROOT / "ai_wdywfm" / "prompts" / "system_v1.txt").read_text(encoding="utf-8")
     dialect_text = (ROOT / "ai_wdywfm" / "prompts" / f"dialect_{dialect}_v1.txt").read_text(encoding="utf-8")
     envelope = {
-        "protocol_version": "1.0",
+        "protocol_version": "2.0",
         "mode": mode,
         "intent": {
             "operation": operation.lower(),
@@ -69,6 +77,15 @@ def generate(
         api_key=api_key,
         timeout=timeout,
         request_id=request_id,
+        cancel_event=cancel_event,
+    )
+    search_service = (
+        CharacterSearchService(
+            sources=web_search_sources,
+            timeout=web_search_timeout,
+            request_id=request_id,
+        )
+        if web_search_enabled else None
     )
     payload = client.complete(
         model=model.strip(),
@@ -76,10 +93,15 @@ def generate(
         envelope=envelope,
         schema=schema,
         image_url=image_url,
+        thinking_budget=thinking_budget,
         ttl=lmstudio_ttl if provider == "LM Studio" else None,
+        lora_details=inventory.get("lora_details", {}),
+        fallback_lora_ids=inventory.get("lora_fallback_ids", []),
+        web_search=search_service.search if search_service is not None else None,
+        max_search_calls=1,
     )
     constraints = inventory.get("constraints", {})
-    return _validate_payload(payload, mode, inventory, constraints)
+    return _validate_payload(payload, mode, inventory, constraints, request_id=request_id)
 
 
 def _validate_payload(
@@ -87,8 +109,9 @@ def _validate_payload(
     mode: str,
     inventory: dict[str, Any],
     constraints: dict[str, Any],
+    request_id: str = "validation",
 ) -> PromptSuggestion:
-    normalized_payload = _normalize_lora_weights(payload, inventory)
+    normalized_payload = _normalize_lora_weights(payload, inventory, request_id=request_id)
     suggestion = parse_suggestion(normalized_payload)
     return semantic_validate(
         suggestion,
@@ -98,10 +121,13 @@ def _validate_payload(
         samplers=set(constraints.get("allowed_samplers", [])),
         schedulers=set(constraints.get("allowed_schedulers", [])),
         lora_triggers=inventory.get("lora_triggers", {}),
+        request_id=request_id,
     )
 
 
-def _normalize_lora_weights(payload: Any, inventory: dict[str, Any]) -> Any:
+def _normalize_lora_weights(
+    payload: Any, inventory: dict[str, Any], *, request_id: str = "validation",
+) -> Any:
     if not isinstance(payload, dict):
         return payload
     models = payload.get("models")
@@ -139,6 +165,11 @@ def _normalize_lora_weights(payload: Any, inventory: dict[str, Any]) -> Any:
             message = f"Normalized LoRA weight for {lora_id} to {item['weight']:g}."
             if message not in warnings:
                 warnings.append(message)
+        if changed:
+            category_logger("validation").debug(
+                "request=%s validation.changed code=lora.weight_normalized id=%s original_type=%s value=%s",
+                request_id, lora_id, type(original).__name__, item["weight"],
+            )
     return result
 
 

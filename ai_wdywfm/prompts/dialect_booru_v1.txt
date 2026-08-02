@@ -1,6 +1,8 @@
-Write a concise comma-separated sequence of canonical Danbooru/e621-style tags, using
-spaces instead of underscores. Prefer established tags over prose, weak synonyms, or
-near-duplicates. Use this order: checkpoint-appropriate quality/rating/source tags;
+Write a detailed but controlled comma-separated sequence of canonical Danbooru/e621-style
+tags. Preserve canonical underscores exactly for verified search tags. Prefer established
+tags over prose, weak synonyms, or near-duplicates. When the request and references contain
+enough visual information, aim for roughly 30–70 useful tags rather than a minimal sketch;
+never invent filler to reach a count. Use this order: checkpoint-appropriate quality/rating/source tags;
 subject count; character/species identity; body and distinguishing traits; clothing;
 camera, framing, and viewpoint; pose; interaction/action; expression and gaze; setting
 and background; lighting; medium/style. Keep each character's identity and visible

@@ -6,6 +6,13 @@ from modules import shared
 
 
 SECTION = ("ai-wdywfm", "AI WDYWFM")
+VISIBLE_SETTINGS = frozenset({
+    "wdywfm_default_provider",
+    "wdywfm_lmstudio_url",
+    "wdywfm_timeout",
+    "wdywfm_timeout_lmstudio",
+    "wdywfm_thinking_budget",
+})
 
 
 def register_settings() -> None:
@@ -22,16 +29,6 @@ def register_settings() -> None:
             "LM Studio base URL (loopback only)",
             section=SECTION,
         ),
-        "wdywfm_lmstudio_model": shared.OptionInfo(
-            "",
-            "Default LM Studio model id",
-            section=SECTION,
-        ),
-        "wdywfm_openrouter_model": shared.OptionInfo(
-            "",
-            "Default OpenRouter model id",
-            section=SECTION,
-        ),
         "wdywfm_timeout": shared.OptionInfo(
             60,
             "OpenRouter request timeout (seconds)",
@@ -46,76 +43,11 @@ def register_settings() -> None:
             {"minimum": 10, "maximum": 900, "step": 5},
             section=SECTION,
         ),
-        "wdywfm_lmstudio_auto_unload": shared.OptionInfo(
-            True,
-            "Automatically load/unload the LM Studio model from GPU memory",
-            section=SECTION,
-        ).info(
-            "Recommended: on. The model is loaded on demand and unloaded shortly after each "
-            "request so it does not compete with Stable Diffusion for GPU VRAM. "
-            "WARNING: turning this off may reduce performance and stability if you have "
-            "limited GPU VRAM, since the LLM can then stay resident in GPU memory alongside "
-            "Stable Diffusion."
-        ),
-        "wdywfm_lmstudio_unload_ttl": shared.OptionInfo(
-            20,
-            "LM Studio idle TTL before auto-unload (seconds)",
+        "wdywfm_thinking_budget": shared.OptionInfo(
+            2048,
+            "Thinking budget (tokens, 0 uses the provider/model default)",
             gr.Slider,
-            {"minimum": 5, "maximum": 300, "step": 5},
-            section=SECTION,
-        ).info(
-            "Only used when auto load/unload is enabled above."
-        ),
-        "wdywfm_sdxl_auto_unload": shared.OptionInfo(
-            True,
-            "Automatically unload the Stable Diffusion/SDXL checkpoint from GPU while querying LM Studio",
-            section=SECTION,
-        ).info(
-            "Recommended: on. Frees all GPU VRAM for the local LLM while it answers; "
-            "Forge reloads your checkpoint automatically the next time you press Generate. "
-            "WARNING: turning this off may reduce performance and stability if you have "
-            "limited GPU VRAM, since the SD/SDXL checkpoint then stays resident in GPU "
-            "memory alongside the LLM."
-        ),
-        "wdywfm_image_max_side": shared.OptionInfo(
-            1536,
-            "Reference image maximum side (pixels)",
-            gr.Slider,
-            {"minimum": 512, "maximum": 2048, "step": 64},
-            section=SECTION,
-        ),
-        "wdywfm_inventory_limit": shared.OptionInfo(
-            80,
-            "Maximum compact model entries per type sent to the LLM",
-            gr.Slider,
-            {"minimum": 10, "maximum": 250, "step": 10},
-            section=SECTION,
-        ),
-        "wdywfm_civitai_enrichment": shared.OptionInfo(
-            True,
-            "Enrich shortlisted local models with cache-first CivitAI metadata",
-            section=SECTION,
-        ).info(
-            "Only shortlisted models are looked up. Failures never block prompt generation. "
-            "Set CIVITAI_API_TOKEN for authenticated requests."
-        ),
-        "wdywfm_civitai_domain": shared.OptionInfo(
-            "civitai.com",
-            "CivitAI API domain",
-            gr.Dropdown,
-            {"choices": ["civitai.com", "civitai.red"]},
-            section=SECTION,
-        ),
-        "wdywfm_civitai_timeout": shared.OptionInfo(
-            15,
-            "CivitAI metadata request timeout (seconds)",
-            gr.Slider,
-            {"minimum": 5, "maximum": 60, "step": 5},
-            section=SECTION,
-        ),
-        "wdywfm_debug_logging": shared.OptionInfo(
-            False,
-            "Enable redacted debug logging",
+            {"minimum": 0, "maximum": 32768, "step": 1024},
             section=SECTION,
         ),
     }
@@ -124,4 +56,6 @@ def register_settings() -> None:
 
 
 def get_setting(name: str, fallback):
+    if name not in VISIBLE_SETTINGS:
+        return fallback
     return getattr(shared.opts, name, fallback)

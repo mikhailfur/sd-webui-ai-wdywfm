@@ -164,6 +164,20 @@
   margin: 7px 0 0;
 }
 
+.wdywfm-rec-card {
+  background: color-mix(in srgb, var(--wdywfm-accent) 5%, var(--block-background-fill));
+  border: 1px solid var(--wdywfm-line);
+  border-radius: 7px;
+  color: var(--wdywfm-muted);
+  font-size: .78rem;
+  line-height: 1.55;
+  margin-top: 7px;
+  padding: 9px 11px;
+}
+
+.wdywfm-rec-card a { color: var(--wdywfm-accent); }
+.wdywfm-rec-card code { color: var(--wdywfm-ink); }
+
 .wdywfm-ok { color: var(--wdywfm-mint); }
 .wdywfm-actions { align-items: end; border-top: 1px solid var(--wdywfm-line); padding-top: 10px; }
 .wdywfm-apply { box-shadow: 0 5px 18px color-mix(in srgb, var(--wdywfm-accent) 22%, transparent); }

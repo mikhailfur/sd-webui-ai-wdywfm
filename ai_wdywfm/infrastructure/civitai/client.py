@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import email.utils
+import hashlib
 import os
 import random
 import threading
@@ -11,7 +12,7 @@ from urllib.parse import quote, urlparse
 
 import requests
 
-from ai_wdywfm.infrastructure.diagnostics import get_logger
+from ai_wdywfm.infrastructure.diagnostics import category_logger
 
 
 ALLOWED_HOSTS = {"civitai.com", "civitai.red"}
@@ -48,7 +49,7 @@ class CivitAIClient:
         self.retries = max(0, min(int(retries), 5))
         self.request_id = request_id
         self.sleep = sleep
-        self.logger = get_logger()
+        self.logger = category_logger("civitai")
 
     def get_version_by_hash(self, sha256: str) -> dict[str, Any] | None:
         return self._get(f"/model-versions/by-hash/{quote(sha256, safe='')}")
@@ -71,7 +72,39 @@ class CivitAIClient:
         model = self.get_model(model_id) if type(model_id) is int and model_id > 0 else None
         return version, model
 
-    def _get(self, path: str) -> dict[str, Any] | None:
+    def search_loras(
+        self,
+        query: str,
+        *,
+        sort: str = "Most Downloaded",
+        base_model: str = "",
+        nsfw: str = "None",
+        page: int = 1,
+        limit: int = 12,
+    ) -> dict[str, Any]:
+        clean_query = " ".join((query or "").split())[:300]
+        params: dict[str, Any] = {
+            "query": clean_query,
+            "types": "LORA",
+            "sort": sort,
+            "nsfw": nsfw,
+            "page": max(1, int(page)),
+            "limit": max(1, min(int(limit), 100)),
+        }
+        if base_model.strip():
+            params["baseModels"] = base_model.strip()[:100]
+        category_logger("civitai").info(
+            "request=%s recommender.search query_hash=%s query_chars=%d page=%d limit=%d nsfw=%s",
+            self.request_id,
+            hashlib.sha256(clean_query.encode("utf-8")).hexdigest()[:12],
+            len(clean_query), params["page"], params["limit"], nsfw,
+        )
+        value = self._get("/models", params=params)
+        return value or {"items": [], "metadata": {}}
+
+    def _get(
+        self, path: str, *, params: dict[str, Any] | None = None,
+    ) -> dict[str, Any] | None:
         headers = {"Accept": "application/json", "User-Agent": "ai-wdywfm/phase-a"}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
@@ -82,6 +115,7 @@ class CivitAIClient:
                 with _SEMAPHORE:
                     response = requests.get(
                         f"{self.base_url}{path}", headers=headers,
+                        params=params,
                         timeout=(min(5.0, self.timeout), self.timeout),
                     )
                 status = response.status_code
@@ -90,6 +124,10 @@ class CivitAIClient:
                     self.request_id, path, status, time.perf_counter() - started, attempt + 1,
                 )
                 if status == 404:
+                    self.logger.info(
+                        "request=%s civitai.not_found path=%s error_category=metadata_not_found",
+                        self.request_id, path,
+                    )
                     return None
                 if status == 429 or 500 <= status <= 599:
                     if attempt < self.retries:
@@ -140,7 +178,7 @@ def _valid_response(value: Any) -> bool:
     if not isinstance(value, dict):
         return False
     # Schema-lite: reject generic HTML/error JSON while allowing both model and version shapes.
-    return any(key in value for key in ("id", "modelId", "name", "files", "description"))
+    return any(key in value for key in ("id", "modelId", "name", "files", "description", "items"))
 
 
 def _retry_delay(response, attempt: int) -> float:

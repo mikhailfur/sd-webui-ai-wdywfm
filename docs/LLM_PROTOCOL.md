@@ -1,4 +1,4 @@
-# LLM Protocol v1
+# LLM Protocol v2
 
 Этот документ задаёт provider-neutral контракт между `ai-wdywfm` и OpenRouter/LM Studio.
 
@@ -9,6 +9,7 @@
 - Никаких Markdown fences или пояснений вне JSON.
 - `additionalProperties: false` на каждом object.
 - Строгая server-side validation, затем локальная semantic validation.
+- Детали LoRA передаются лениво через bounded tool loop; первый запрос остаётся compact.
 
 ## 2. Request envelope
 
@@ -16,7 +17,7 @@ Provider adapter преобразует внутренний объект в Ope
 
 ```json
 {
-  "protocol_version": "1.0",
+  "protocol_version": "2.0",
   "request_id": "uuid",
   "mode": "txt2img",
   "intent": {
@@ -30,8 +31,17 @@ Provider adapter преобразует внутренний объект в Ope
     "negative_prompt": ""
   },
   "installed_models": {
-    "summary": [],
-    "detailed_candidates": []
+    "summary": {
+      "checkpoints": [],
+      "loras": [
+        {
+          "id": "local-lora-id",
+          "alias": "display alias",
+          "short_description": "sanitized first line, at most 140 characters"
+        }
+      ],
+      "truncated": false
+    }
   },
   "constraints": {
     "allowed_checkpoint_ids": [],
@@ -54,6 +64,60 @@ Provider adapter преобразует внутренний объект в Ope
 ```
 
 Text content должен идти перед image content для совместимости с OpenRouter.
+
+### 2.1 Lazy LoRA details tool
+
+Если провайдер поддерживает function calling вместе со structured output, adapter добавляет:
+
+```json
+{
+  "type": "function",
+  "function": {
+    "name": "get_lora_details",
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ids": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {"type": "string"}
+        }
+      },
+      "required": ["ids"]
+    }
+  }
+}
+```
+
+Backend принимает только ids из текущего `allowed_lora_ids`/локального detail-map. Неизвестные ids
+возвращаются в `rejected_ids`, но не прерывают Generate. Максимум два tool-раунда и восемь уникальных
+детальных карточек на весь Generate; исходный hard deadline общий для всех HTTP round-trip. После лимита
+tools удаляются из payload и модель обязана вернуть финальный JSON.
+
+Если tools не поддерживаются (включая Gemma 4 fast profile и LM Studio models без function calling),
+adapter выполняет один fallback completion с прежним bounded top-8 `detailed_candidates`. Этот fallback
+не меняет allowlist и не ослабляет локальную semantic validation.
+
+### 2.2 Character web search tool
+
+При включённой глобальной настройке и отдельном consent текущего Generate adapter добавляет
+`web_search({query, character, franchise, sources, fandom_wiki})`. Разрешённые sources:
+`danbooru`, `rule34`, `e621`, `wiki_fandom`.
+
+- максимум один search call на Generate;
+- он использует тот же общий hard deadline и тот же максимум tool-раундов, что `get_lora_details`;
+- Danbooru/e621 сначала ищут tag category `Character`, затем агрегируют повторяющиеся visual tags;
+- Rule34 используется только как дополнительный tag source;
+- Fandom вызывает allowlisted `https://*.fandom.com/api.php` и возвращает plain-text intro;
+- произвольный web content не кэшируется;
+- query и результаты ограничены по длине/количеству и передаются как untrusted tool data;
+- при compatibility fallback поиск выполняется один раз backend-ом по intent text и вкладывается в
+  `web_search_results`.
+
+Модель использует результаты только для identity/franchise/species/appearance/signature outfit. Artist,
+rating, quality/meta, unrelated character, transient pose/scene и sexual-action tags игнорируются, если
+пользователь явно не запросил соответствующий видимый элемент.
 
 ## 3. Response schema
 
@@ -300,6 +364,17 @@ http://127.0.0.1:1234/v1
 
 `response_format` совпадает с OpenAI Structured Output. Модель может не справляться со schema, особенно небольшая или неподходящая instruct-модель; поэтому локальная проверка обязательна независимо от server-side enforcement.
 
+Thinking budget применяется к каждому completion round-trip. OpenRouter получает
+`reasoning: {"max_tokens": N, "exclude": true}`, а LM Studio 0.4.8+ —
+`reasoning_tokens: N`. При `N = 0` поле не отправляется и действует default
+модели/provider. `max_tokens` оставляет ещё 2048 токенов для schema-ответа.
+Для Gemma 4 reasoning принудительно отключён, а общий output ограничен 2048
+токенами: иначе модель расходует budget и возвращает усечённую schema.
+
+OpenRouter routing требует поддержку всех parameters, разрешает provider fallback и
+сортирует endpoints по throughput. `finish_reason=length` считается усечённым ответом,
+а `finish_reason=error` преобразуется в типизированную provider error до JSON validation.
+
 LM Studio компилирует `json_schema` в GBNF-грамматику локально (llama.cpp). Начиная с llama.cpp PR #17381 парсер грамматики жёстко ограничивает любой `{min,max}` repetition (в том числе `maxLength` строки, компилируемый как `char{0,N}`) значением 2000: превышение даёт HTTP 400 `Failed to initialize samplers: failed to parse grammar` ещё до начала генерации. Поэтому `maxLength` строковых полей схемы должен оставаться < 2000 — иначе запрос ломается независимо от возможностей модели. OpenRouter эту грамматику локально не компилирует, поэтому там лимит не актуален, но схема должна быть одной для обоих провайдеров.
 
 ## 8. Parsing и repair policy
@@ -319,7 +394,9 @@ LM Studio компилирует `json_schema` в GBNF-грамматику ло
 - автоматическая вставка отсутствующих prompt полей;
 - применение частично распарсенного ответа.
 
-Опциональный repair request протоколом допускается, но в текущей реализации отключён: одно действие Generate выполняет ровно один completion. Невалидный ответ отклоняется локально без второго платного запроса.
+Repair request отключён: невалидный финальный ответ отклоняется локально без повторной попытки исправления.
+Одно действие Generate может содержать несколько completion round-trip только для bounded tool loop либо
+один compatibility fallback, и все они укладываются в единый hard deadline.
 
 ## 9. Пример валидного ответа
 

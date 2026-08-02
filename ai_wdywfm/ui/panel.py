@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import html
+import threading
 import time
 import uuid
 from typing import Any
@@ -8,13 +10,19 @@ import gradio as gr
 
 from ai_wdywfm.application.apply_prompts import apply_prompt_fields
 from ai_wdywfm.application.generate_suggestion import generate
-from ai_wdywfm.domain.errors import WdywfmError
+from ai_wdywfm.application.recommend_loras import recommend_loras
+from ai_wdywfm.domain.errors import WdywfmError, error_category
 from ai_wdywfm.infrastructure.forge_neo.inventory import (
     build_inventory,
     compatibility,
     unload_sd_checkpoint,
 )
-from ai_wdywfm.infrastructure.diagnostics import get_logger, log_path, read_log_tail
+from ai_wdywfm.infrastructure.diagnostics import (
+    category_logger,
+    get_logger,
+    log_path,
+    read_log_tail,
+)
 from ai_wdywfm.infrastructure.provider_state import load_provider_state, save_provider_state
 from ai_wdywfm.infrastructure.providers.openai_compatible import OpenAICompatibleClient
 from ai_wdywfm.infrastructure.providers.gemma4 import is_gemma4_model
@@ -29,6 +37,8 @@ from ai_wdywfm.ui.settings import get_setting
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
 LM_STUDIO_URL = "http://127.0.0.1:1234/v1"
+_ACTIVE_CANCEL_EVENTS: dict[str, threading.Event] = {}
+_ACTIVE_CANCEL_LOCK = threading.Lock()
 
 
 def _timeout_for(provider: str) -> float:
@@ -52,7 +62,9 @@ def _maybe_unload_sdxl(provider: str, request_id: str) -> bool:
         return False
     freed = unload_sd_checkpoint()
     if freed:
-        get_logger().info("request=%s sdxl.unloaded reason=lmstudio_request", request_id)
+        category_logger("ui").info(
+            "request=%s sdxl.unloaded reason=lmstudio_request", request_id
+        )
     return freed
 
 
@@ -67,13 +79,16 @@ def build_panel(*, is_img2img: bool, prompt_component, negative_component) -> No
     default_model = saved_provider["model"] or _default_model(default_provider)
     default_url = saved_provider["base_url"] or _provider_url(default_provider)
     default_api_key = saved_provider["api_key"] if default_provider == "OpenRouter" else ""
-    get_logger().info(
+    category_logger("ui").info(
         "ui.panel_build mode=%s provider=%s model_selected=%s runtime=%s",
         mode, default_provider, bool(default_model), runtime,
     )
 
     def generate_for_mode(*args):
         yield from _generate(mode, *args)
+
+    def cancel_for_mode():
+        return _cancel_request(mode)
 
     with gr.Accordion(
         "LLM Prompt Helper · AI WDYWFM",
@@ -172,6 +187,17 @@ def build_panel(*, is_img2img: bool, prompt_component, negative_component) -> No
                     value=False,
                     visible=default_provider == "OpenRouter",
                 )
+                web_search_consent = gr.Checkbox(
+                    label="Allow this Generate to search character references on selected sites",
+                    value=False,
+                    interactive=True,
+                )
+                web_search_sources = gr.CheckboxGroup(
+                    ["danbooru", "rule34", "e621", "wiki_fandom"],
+                    value=_configured_search_sources(),
+                    label="Character reference sources",
+                    interactive=True,
+                )
                 disclosure = gr.Markdown(
                     _disclosure(default_provider),
                     elem_classes=["wdywfm-disclosure"],
@@ -236,6 +262,50 @@ def build_panel(*, is_img2img: bool, prompt_component, negative_component) -> No
                     elem_classes=["wdywfm-apply"],
                 )
 
+        recommender_enabled = bool(get_setting("wdywfm_civitai_recommender", True))
+        with gr.Accordion(
+            "LoRA recommender · CivitAI · read-only",
+            open=False,
+            elem_classes=["wdywfm-recommender"],
+        ):
+            gr.Markdown(
+                "Searches CivitAI independently from prompt generation. Results are links and ids only; "
+                "nothing is downloaded, installed, or added to a prompt."
+            )
+            with gr.Row():
+                recommender_query = gr.Textbox(
+                    label="What LoRA are you looking for?",
+                    placeholder="Example: cinematic rain, neon city, anime character…",
+                    scale=4,
+                    interactive=recommender_enabled,
+                )
+                recommender_base = gr.Textbox(
+                    label="Base model · optional",
+                    placeholder="Illustrious, SDXL 1.0…",
+                    scale=2,
+                    interactive=recommender_enabled,
+                )
+            with gr.Row():
+                recommender_nsfw = gr.Dropdown(
+                    ["None", "Soft", "Mature", "X"],
+                    value=str(get_setting("wdywfm_civitai_recommender_nsfw", "None")),
+                    label="NSFW filter",
+                )
+                recommender_page = gr.Number(value=1, precision=0, minimum=1, label="Page")
+                recommender_rerank = gr.Checkbox(
+                    value=False,
+                    label="Use selected LLM to re-rank these results",
+                )
+                recommender_button = gr.Button(
+                    "Find LoRA", variant="secondary", interactive=recommender_enabled,
+                )
+            recommender_results = gr.HTML(
+                '<div class="wdywfm-empty">'
+                + ("Enter a description to search CivitAI." if recommender_enabled else
+                   "The recommender is disabled in AI WDYWFM settings.")
+                + "</div>"
+            )
+
         with gr.Accordion(
             "Diagnostics · sanitized log",
             open=False,
@@ -244,7 +314,15 @@ def build_panel(*, is_img2img: bool, prompt_component, negative_component) -> No
             gr.Markdown(
                 f"Log file: `{log_path()}` · prompts, images, and API keys are excluded."
             )
-            refresh_log = gr.Button("Refresh log", variant="secondary", size="sm")
+            with gr.Row():
+                log_request_filter = gr.Textbox(
+                    label="Request id filter", placeholder="Leave empty for all requests",
+                )
+                log_level_filter = gr.Dropdown(
+                    ["ALL", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+                    value="ALL", label="Level filter (exact)",
+                )
+                refresh_log = gr.Button("Refresh log", variant="secondary", size="sm")
             log_view = gr.Textbox(
                 value=read_log_tail(),
                 label="Latest events",
@@ -273,7 +351,8 @@ def build_panel(*, is_img2img: bool, prompt_component, negative_component) -> No
             fn=generate_for_mode,
             inputs=[
                 provider, model, base_url, api_key, request, dialect, operation,
-                reference, cloud_consent, prompt_component, negative_component,
+                reference, cloud_consent, web_search_consent, web_search_sources,
+                prompt_component, negative_component,
             ],
             outputs=[
                 suggestion_state, prompt_preview, negative_preview, summary,
@@ -287,7 +366,7 @@ def build_panel(*, is_img2img: bool, prompt_component, negative_component) -> No
             ),
         )
         cancel_button.click(
-            fn=_cancel_request,
+            fn=cancel_for_mode,
             inputs=[],
             outputs=[activity],
             cancels=[generate_event],
@@ -312,11 +391,20 @@ def build_panel(*, is_img2img: bool, prompt_component, negative_component) -> No
             show_progress="hidden",
         )
         refresh_log.click(
-            fn=read_log_tail,
-            inputs=[],
+            fn=_filtered_log,
+            inputs=[log_request_filter, log_level_filter],
             outputs=[log_view],
             show_progress="hidden",
             queue=False,
+        )
+        recommender_button.click(
+            fn=_recommend,
+            inputs=[
+                recommender_query, recommender_base, recommender_nsfw,
+                recommender_page, recommender_rerank,
+                provider, model, base_url, api_key,
+            ],
+            outputs=[recommender_results],
         )
         apply_button.click(
             fn=_apply,
@@ -345,16 +433,19 @@ def _generate(
     operation: str,
     reference: Any,
     cloud_consent: bool,
+    web_search_consent: bool,
+    web_search_sources: list[str],
     current_prompt: str,
     current_negative: str,
 ):
     request_id = uuid.uuid4().hex[:12]
+    cancel_event = _begin_request(mode)
     started = time.perf_counter()
-    logger = get_logger()
+    logger = category_logger("ui")
     logger.info(
-        "request=%s ui.generate mode=%s provider=%s model=%s vision=%s key_present=%s request_chars=%d",
+        "request=%s ui.generate mode=%s provider=%s model=%s vision=%s search=%s key_present=%s request_chars=%d",
         request_id, mode, provider, model or "none", reference is not None,
-        bool(api_key), len(request or ""),
+        bool(web_search_consent), bool(api_key), len(request or ""),
     )
     _save_safely(provider, model, base_url, api_key)
     yield _activity_update(
@@ -372,7 +463,7 @@ def _generate(
         )
         constraints = inventory.get("constraints", {})
         metadata_cache = inventory.get("metadata_cache", {})
-        logger.info(
+        category_logger("inventory").info(
             "request=%s inventory.ok checkpoints=%d loras=%d metadata_loras=%d activation_words=%d cache_hits=%d cache_misses=%d cache_entries=%d samplers=%d schedulers=%d",
             request_id,
             len(constraints.get("allowed_checkpoint_ids", [])),
@@ -408,24 +499,32 @@ def _generate(
             cloud_image_consent=cloud_consent,
             inventory=inventory,
             timeout=_timeout_for(provider),
+            thinking_budget=int(get_setting("wdywfm_thinking_budget", 2048)),
             image_max_side=int(get_setting("wdywfm_image_max_side", 1536)),
             request_id=request_id,
+            cancel_event=cancel_event,
             lmstudio_ttl=_lmstudio_ttl(provider),
+            web_search_enabled=bool(web_search_consent),
+            web_search_sources=web_search_sources or (),
+            web_search_timeout=float(get_setting("wdywfm_web_search_timeout", 10)),
         )
     except WdywfmError as exc:
         logger.warning(
-            "request=%s failed duration=%.3fs kind=%s message=%s",
-            request_id, time.perf_counter() - started, type(exc).__name__, str(exc),
+            "request=%s failed duration=%.3fs kind=%s error_category=%s message=%s",
+            request_id, time.perf_counter() - started, type(exc).__name__,
+            error_category(exc), str(exc),
         )
         gr.Warning(str(exc))
+        _finish_request(mode, cancel_event)
         yield _activity_update(f"Request `{request_id}` failed: **{exc}**")
         return
     except Exception as exc:
         logger.exception(
-            "request=%s crashed duration=%.3fs kind=%s",
+            "request=%s crashed duration=%.3fs kind=%s error_category=internal",
             request_id, time.perf_counter() - started, type(exc).__name__,
         )
         gr.Warning(f"Internal error ({request_id}). Open Diagnostics for details.")
+        _finish_request(mode, cancel_event)
         yield _activity_update(
             f"Request `{request_id}` crashed. Open **Diagnostics** and copy the log."
         )
@@ -435,6 +534,7 @@ def _generate(
         request_id, time.perf_counter() - started, len(suggestion.prompt),
         len(suggestion.negative_prompt), len(suggestion.warnings),
     )
+    _finish_request(mode, cancel_event)
     yield (
         suggestion.to_state(),
         suggestion.prompt,
@@ -558,7 +658,14 @@ def _disclosure(provider: str) -> str:
     metadata = (
         " When CivitAI enrichment is enabled, shortlisted model hashes/ids may be sent to the selected CivitAI domain."
     )
-    return f"**Privacy:** {source} will be sent to {destination}. Absolute paths are excluded.{metadata}{persistence}"
+    search = (
+        " Character web search requires per-Generate consent; when enabled, "
+        "the character/franchise query is sent only to the selected Danbooru, Rule34, e621, or Fandom APIs."
+    )
+    return (
+        f"**Privacy:** {source} will be sent to {destination}. Absolute paths are excluded."
+        f"{metadata}{search}{persistence}"
+    )
 
 
 def _auto_save(provider: str, model: str, base_url: str, api_key: str) -> str:
@@ -580,6 +687,120 @@ def _activity_update(message: str):
     return (gr.skip(),) * 7 + (message, read_log_tail())
 
 
-def _cancel_request() -> str:
-    get_logger().info("ui.cancel_requested")
-    return "Request cancelled. The previous draft was kept."
+def _begin_request(mode: str) -> threading.Event:
+    event = threading.Event()
+    with _ACTIVE_CANCEL_LOCK:
+        previous = _ACTIVE_CANCEL_EVENTS.get(mode)
+        if previous is not None:
+            previous.set()
+        _ACTIVE_CANCEL_EVENTS[mode] = event
+    return event
+
+
+def _finish_request(mode: str, event: threading.Event) -> None:
+    with _ACTIVE_CANCEL_LOCK:
+        if _ACTIVE_CANCEL_EVENTS.get(mode) is event:
+            _ACTIVE_CANCEL_EVENTS.pop(mode, None)
+
+
+def _cancel_request(mode: str) -> str:
+    with _ACTIVE_CANCEL_LOCK:
+        event = _ACTIVE_CANCEL_EVENTS.get(mode)
+        if event is not None:
+            event.set()
+    category_logger("ui").info(
+        "ui.cancel_requested mode=%s active=%s error_category=cancelled",
+        mode, event is not None,
+    )
+    return (
+        "Cancellation requested. The previous draft was kept."
+        if event is not None else
+        "No active request."
+    )
+
+
+def _configured_search_sources() -> list[str]:
+    raw = str(get_setting(
+        "wdywfm_web_search_sources",
+        "danbooru,rule34,e621,wiki_fandom",
+    ))
+    allowed = {"danbooru", "rule34", "e621", "wiki_fandom"}
+    return [
+        item for item in (part.strip().lower() for part in raw.split(","))
+        if item in allowed
+    ]
+
+
+def _filtered_log(request_id: str, level: str) -> str:
+    return read_log_tail(request_filter=request_id or "", level_filter=level or "ALL")
+
+
+def _recommend(
+    query: str,
+    base_model: str,
+    nsfw: str,
+    page: float,
+    use_rerank: bool,
+    provider: str,
+    model: str,
+    provider_base_url: str,
+    api_key: str,
+) -> str:
+    request_id = f"rec-{uuid.uuid4().hex[:8]}"
+    domain = str(get_setting("wdywfm_civitai_domain", "civitai.com"))
+    try:
+        llm_client = None
+        if use_rerank:
+            llm_client = OpenAICompatibleClient(
+                provider=provider, base_url=provider_base_url, api_key=api_key,
+                timeout=_timeout_for(provider), request_id=request_id,
+            )
+        result = recommend_loras(
+            query,
+            base_url=f"https://{domain}/api/v1",
+            timeout=float(get_setting("wdywfm_civitai_timeout", 15)),
+            nsfw=nsfw or "None",
+            base_model=base_model or "",
+            page=max(1, int(page or 1)),
+            limit=int(get_setting("wdywfm_civitai_recommender_limit", 12)),
+            request_id=request_id,
+            llm_client=llm_client,
+            llm_model=model or "",
+        )
+    except WdywfmError as exc:
+        category_logger("civitai").warning(
+            "request=%s recommender.failed kind=%s error_category=%s",
+            request_id, type(exc).__name__, error_category(exc),
+        )
+        return (
+            '<div class="wdywfm-empty">CivitAI is unavailable. '
+            "The main prompt workflow is unaffected.</div>"
+        )
+    items = result.get("items", [])
+    if not items:
+        return '<div class="wdywfm-empty">No matching LoRA found.</div>'
+    cards = []
+    for item in items:
+        name = html.escape(str(item["name"]))
+        creator = html.escape(str(item["creator"]))
+        base = html.escape(str(item.get("base_model") or "unspecified"))
+        page_url = html.escape(str(item["page_url"]), quote=True)
+        preview = item.get("preview_url")
+        preview_link = (
+            f' · <a href="{html.escape(str(preview), quote=True)}" target="_blank" '
+            'rel="noopener noreferrer">preview</a>'
+            if preview else ""
+        )
+        cards.append(
+            '<div class="wdywfm-rec-card">'
+            f'<a href="{page_url}" target="_blank" rel="noopener noreferrer"><b>{name}</b></a>'
+            f" · by {creator} · {base}<br>"
+            f"<code>model:{item['model_id']}</code>"
+            + (
+                f" · <code>version:{item['version_id']}</code>"
+                if item.get("version_id") is not None else ""
+            )
+            + preview_link
+            + "</div>"
+        )
+    return "".join(cards)

@@ -17,7 +17,7 @@ class Gemma4ProfileTests(unittest.TestCase):
         payload = {}
         system = apply_gemma4_profile(payload, "Schema instructions")
         self.assertEqual(system, "Schema instructions")
-        self.assertEqual(payload["max_tokens"], 3072)
+        self.assertEqual(payload["max_tokens"], 2048)
         self.assertNotIn("reasoning", payload)
         self.assertNotIn("stop", payload)
 

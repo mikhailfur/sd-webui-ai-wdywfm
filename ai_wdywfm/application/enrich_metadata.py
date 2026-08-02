@@ -9,7 +9,7 @@ from typing import Iterable
 from ai_wdywfm.domain.models import ModelMetadata
 from ai_wdywfm.infrastructure.civitai.client import CivitAIClient, CivitAIError
 from ai_wdywfm.infrastructure.civitai.normalizer import merge_metadata, normalize_metadata
-from ai_wdywfm.infrastructure.diagnostics import get_logger
+from ai_wdywfm.infrastructure.diagnostics import category_logger
 from ai_wdywfm.infrastructure.hashing import file_fingerprint, sha256_file
 from ai_wdywfm.infrastructure.storage.sqlite_cache import SQLiteMetadataCache
 
@@ -29,7 +29,7 @@ class MetadataEnricher:
         self.request_id = request_id
         self.cancel = cancel or threading.Event()
         self.workers = max(1, min(int(workers), 3))
-        self.logger = get_logger()
+        self.logger = category_logger("inventory")
 
     def enrich_many(
         self, items: Iterable[tuple[ModelMetadata, str | Path]],

@@ -7,6 +7,7 @@ from typing import Any
 
 from .errors import ValidationError
 from .models import LoraSuggestion, PromptSuggestion, Recommendations
+from ai_wdywfm.infrastructure.diagnostics import category_logger
 
 
 ROOT_KEYS = {
@@ -156,9 +157,15 @@ def semantic_validate(
     samplers: set[str],
     schedulers: set[str],
     lora_triggers: dict[str, tuple[str, ...]] | None = None,
+    request_id: str = "validation",
 ) -> PromptSuggestion:
+    logger = category_logger("validation")
     warnings = list(suggestion.warnings)
     if suggestion.checkpoint_id is not None and suggestion.checkpoint_id not in checkpoints:
+        logger.debug(
+            "request=%s validation.rejected code=checkpoint.unknown id=%s",
+            request_id, suggestion.checkpoint_id,
+        )
         raise ValidationError("The suggested checkpoint is not installed.")
 
     selected_aliases: dict[str, tuple[str, float, tuple[str, ...]]] = {}
@@ -166,21 +173,39 @@ def semantic_validate(
     for lora in suggestion.loras:
         alias = lora_aliases.get(lora.id)
         if alias is None:
+            logger.debug(
+                "request=%s validation.rejected code=lora.unknown_id id=%s",
+                request_id, lora.id,
+            )
             raise ValidationError(f"The suggested LoRA is not installed: {lora.id}")
         available_triggers = lora_triggers.get(lora.id, ())
         canonical = {_tag_key(word): word for word in available_triggers}
         selected_triggers = []
+        ignored_triggers = []
         for word in lora.trigger_words:
             verified = canonical.get(_tag_key(word))
             if verified is None and available_triggers:
-                raise ValidationError(
-                    f"LoRA {lora.id} returned an activation word not present in local metadata: {word}"
+                logger.debug(
+                    "request=%s validation.changed code=lora.trigger_unknown id=%s word=%s",
+                    request_id, lora.id, word,
                 )
+                ignored_triggers.append(word)
+                continue
             if verified is not None and verified not in selected_triggers:
                 selected_triggers.append(verified)
+        if ignored_triggers:
+            preview = ", ".join(ignored_triggers[:3])
+            suffix = (
+                f" (+{len(ignored_triggers) - 3} more)"
+                if len(ignored_triggers) > 3 else ""
+            )
+            warnings.append(
+                f"Ignored unverified activation words for {lora.id}: {preview}{suffix}"
+            )
         if available_triggers and not selected_triggers:
             # The first Forge activation word is the local user's canonical
-            # fallback when compact context omitted this LoRA's full card.
+            # fallback when compact context omitted this LoRA's full card or
+            # the provider confused the LoRA id/alias with a trigger word.
             selected_triggers.append(available_triggers[0])
         selected_aliases[alias.casefold()] = (
             alias, lora.weight, tuple(selected_triggers)
@@ -212,15 +237,31 @@ def semantic_validate(
 
     rec = suggestion.recommendations
     if rec.sampler and samplers and rec.sampler not in samplers:
+        logger.debug(
+            "request=%s validation.changed code=sampler.unknown value=%s",
+            request_id, rec.sampler,
+        )
         warnings.append(f"Unknown sampler recommendation ignored: {rec.sampler}")
         rec = replace(rec, sampler=None)
     if rec.scheduler and schedulers and rec.scheduler not in schedulers:
+        logger.debug(
+            "request=%s validation.changed code=scheduler.unknown value=%s",
+            request_id, rec.scheduler,
+        )
         warnings.append(f"Unknown scheduler recommendation ignored: {rec.scheduler}")
         rec = replace(rec, scheduler=None)
     if mode == "txt2img" and rec.denoising_strength is not None:
+        logger.debug(
+            "request=%s validation.changed code=denoising.not_applicable value=%s",
+            request_id, rec.denoising_strength,
+        )
         warnings.append("Denoising strength is not applicable to txt2img and was ignored.")
         rec = replace(rec, denoising_strength=None)
     if (rec.width is not None and rec.width % 8) or (rec.height is not None and rec.height % 8):
+        logger.debug(
+            "request=%s validation.changed code=dimension.out_of_range width=%s height=%s",
+            request_id, rec.width, rec.height,
+        )
         warnings.append("Canvas dimensions not divisible by 8 were ignored.")
         rec = replace(rec, width=None, height=None)
 
